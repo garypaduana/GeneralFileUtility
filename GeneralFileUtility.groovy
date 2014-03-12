@@ -82,7 +82,7 @@ class Main{
                 })
             }
             
-            def frame = frame(id:'fileUtilityFrame', title:'File Utility Tool', size:[900,500], defaultCloseOperation:JFrame.EXIT_ON_CLOSE, locationRelativeTo:null) {
+            def frame = frame(id:'fileUtilityFrame', title:'General File Utility', size:[900,500], defaultCloseOperation:JFrame.EXIT_ON_CLOSE, locationRelativeTo:null) {
                 borderLayout()
                 menuBar(constraints:BorderLayout.NORTH){
                     menu(text: "File", mnemonic: 'F') {
@@ -741,9 +741,9 @@ class Main{
 			
     def aboutAction(){
         swingBuilder.edt{
-            dialog(title: 'About File Utility Tool', size: [350, 250], show: true, owner: fileUtilityFrame, modal: true, locationRelativeTo: fileUtilityFrame) {
+            dialog(title: 'About General File Utility', size: [350, 250], show: true, owner: fileUtilityFrame, modal: true, locationRelativeTo: fileUtilityFrame) {
                 borderLayout()
-                label(text: 'File Utility Tool', constraints: BorderLayout.NORTH, border: emptyBorder(10))
+                label(text: 'General File Utility', constraints: BorderLayout.NORTH, border: emptyBorder(10))
                 panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
                     borderLayout()
                     scrollPane(horizontalScrollBarPolicy: JScrollPane.HORIZONTAL_SCROLLBAR_NEVER, border: null) {
