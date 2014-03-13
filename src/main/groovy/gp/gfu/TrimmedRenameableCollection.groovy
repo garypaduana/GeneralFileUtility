@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+package gp.gfu
+
 public class TrimmedRenameableCollection extends AbstractRenameableCollection{
 	
 	public enum TrimEnd {LEFT, RIGHT;}

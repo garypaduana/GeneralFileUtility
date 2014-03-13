@@ -15,9 +15,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+package gp.gfu
+
 import java.awt.Font
 import java.awt.FontMetrics
 import java.text.DecimalFormat
+import javax.swing.ImageIcon
 import javax.swing.JTable
 
 public class ComponentModifier{
@@ -38,11 +41,18 @@ public class ComponentModifier{
         
         for(int i = 0; i < jTable.getRowCount(); i++){
             Object cell = jTable.getValueAt(i, column)
-            if(cell != null && metrics.stringWidth(cell.toString()) > maxWidth){
-                maxWidth = metrics.stringWidth(cell.toString());
+			
+            if(cell != null){
+				if(jTable.getColumnClass(column).equals(ImageIcon.class)){
+					maxWidth = metrics.stringWidth(jTable.getColumnModel().getColumn(column).getHeaderValue())
+				}
+				else if(metrics.stringWidth(cell.toString()) > maxWidth){
+					maxWidth = metrics.stringWidth(cell.toString());
+				}
             }
         }
-        return Math.round((maxWidth * 0.95f)) + 50;
+		
+        return Math.round(maxWidth * 0.95f) + 20;
     }
     
     public static String customFormat(String pattern, int value){

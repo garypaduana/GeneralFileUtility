@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+package gp.gfu
+
 import javax.swing.ImageIcon
 
 public class MergeFileInfoManager extends FileInfoManager{

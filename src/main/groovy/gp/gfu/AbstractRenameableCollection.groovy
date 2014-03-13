@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+package gp.gfu
 
 public abstract class AbstractRenameableCollection extends Observable implements RenameableCollection{
     private Object[][] data
@@ -118,10 +119,10 @@ public abstract class AbstractRenameableCollection extends Observable implements
             entry.add(filePath)
             String updatedName = applyChange(file.name, file)
             if(file.name.equals(updatedName)){
-                entry.add(Data.xMark)
+                entry.add(Data.X_MARK)
             }
             else{
-                entry.add(Data.checkMark)
+                entry.add(Data.CHECK_MARK)
             }
             entry.add(file.parent + "/" + updatedName)
             interimData.add(entry)
@@ -144,7 +145,7 @@ public abstract class AbstractRenameableCollection extends Observable implements
         
         for(ArrayList<Object> l : interimData){
             try{
-                if(l.get(1).equals(Data.checkMark)){
+                if(l.get(1).equals(Data.CHECK_MARK)){
                     File originalFile = new File(l.get(0).toString())
                     File renamedFile = new File(l.get(2).toString())
                     originalFile.renameTo(renamedFile) == true ? ++renamed : ++failed

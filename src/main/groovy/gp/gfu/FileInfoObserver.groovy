@@ -15,18 +15,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-public class ReplacableRenameableCollection extends AbstractRenameableCollection{
+package gp.gfu
+
+import groovy.swing.SwingBuilder
+
+public class FileInfoObserver implements Observer{
+	private FileInfoManager fileInfoManager = null
+	private SwingBuilder swingBuilder = null
 	
-	private String replace = ""
-	private String with = ""
-	
-	public ReplacableRenameableCollection(String topDir, String regex, String replace, String with){
-		super(topDir, regex)
-		this.replace = replace
-		this.with = with
+	public FileInfoObserver(FileInfoManager fileInfoManager, SwingBuilder swingBuilder){
+		this.fileInfoManager = fileInfoManager
+		this.swingBuilder = swingBuilder
 	}
 	
-	String applyChange(String name, File file){
-		return name.replace(replace, with)
+	public void update(Observable obs, Object obj){
+		if(obs == fileInfoManager){
+			swingBuilder.edt{
+				swingBuilder.statusLabel.text = obs.getStatus()
+				swingBuilder.processProgressBar.value = obs.getPercentComplete()
+			}
+		}
 	}
- }
+}

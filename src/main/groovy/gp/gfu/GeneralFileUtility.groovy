@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+package gp.gfu
+
 import groovy.swing.SwingBuilder
 
 import java.awt.BorderLayout
@@ -49,11 +51,11 @@ class Main{
 
     private SwingBuilder swingBuilder = new SwingBuilder()
     private int fileTableLastSelectedIndex = -1
-	private String duplicateFileLastSelectedHash = ""
+	private String duplicateFileLastSelectedHash
 	public enum WORK_STATE {CONTINUE, CANCEL}
-	private String parity = ""
-	
-    public Main(){
+	private String parity
+
+	public Main(){
         initializeGUI()
     }
     
@@ -238,7 +240,7 @@ class Main{
 													}
 												}
 												else if(editorComboBox.getSelectedItem().equals("Replace")){
-													renameableCollection = new ReplacableRenameableCollection(renameDirTextField.getText(), regexMatchTextField.getText(),
+													renameableCollection = new ReplaceableRenameableCollection(renameDirTextField.getText(), regexMatchTextField.getText(),
 														replaceCharsTextField.getText(), substituteCharsTextField.getText()) 
 												}
 												else if(editorComboBox.getSelectedItem().equals("Series Editor")){													
@@ -489,7 +491,7 @@ class Main{
 		skip.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				for(int i = 0; i < selectedRows.size(); i++){
-					parent.setValueAt(Data.xMark, selectedRows.get(i), parent.getColumnModel().getColumnIndex("Rename?"))
+					parent.setValueAt(Data.X_MARK, selectedRows.get(i), parent.getColumnModel().getColumnIndex("Rename?"))
 				}
 			}
 		})
@@ -497,7 +499,7 @@ class Main{
 		enable.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				for(int i = 0; i < selectedRows.size(); i++){
-					parent.setValueAt(Data.checkMark, selectedRows.get(i), parent.getColumnModel().getColumnIndex("Rename?"))
+					parent.setValueAt(Data.CHECK_MARK, selectedRows.get(i), parent.getColumnModel().getColumnIndex("Rename?"))
 				}
 			}
 		})

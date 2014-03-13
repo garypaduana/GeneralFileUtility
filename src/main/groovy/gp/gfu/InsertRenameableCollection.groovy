@@ -1,4 +1,3 @@
-
 /*
     General File Utility
     Copyright (C) 2012-2014, Gary Paduana, gary.paduana@gmail.com
@@ -16,31 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import java.text.DateFormat
-import java.text.SimpleDateFormat
+package gp.gfu
 
-public class DateifyRenameableCollection extends AbstractRenameableCollection{
-
-	private String dateFormat
-	private Map<Long, Integer> msMap = new TreeMap<Long, Integer>()
-	
-	public DateifyRenameableCollection(String topDir, String regex, String dateFormat){
+public class InsertRenameableCollection extends AbstractRenameableCollection{
+		
+	public InsertRenameableCollection(String topDir, String regex){
 		super(topDir, regex)
-		this.dateFormat = dateFormat
 	}
 	
 	String applyChange(String name, File file){
-		long time = file.lastModified()
-		if(msMap.containsKey(time)){
-			msMap.put(time, msMap.get(time) + 50)
-		}
-		else{
-			msMap.put(time, 0)
-		}
-		
-		time = time + msMap.get(time)
-		
-		DateFormat df = new SimpleDateFormat(dateFormat);
-		return df.format(new Date(time)) + "." + name.substring(name.lastIndexOf(".") + 1, name.length())
+		println name
+		return name
 	}
 }

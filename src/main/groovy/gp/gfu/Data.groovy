@@ -15,6 +15,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+package gp.gfu
+
 import javax.swing.ImageIcon
 
 public class Data{
@@ -30,8 +32,8 @@ public class Data{
 	private RenameableCollection renameableCollection
 	private boolean scanCanceled = false
 	private boolean mergeCanceled = false
-	public static final ImageIcon xMark = new ImageIcon("./xmark.png")
-	public static final ImageIcon checkMark = new ImageIcon("./checkmark.png")
+	public static final ImageIcon X_MARK = new ImageIcon(Data.class.getResource("/resources/images/xmark.png"))
+	public static final ImageIcon CHECK_MARK = new ImageIcon(Data.class.getResource("/resources/images/checkmark.png"))
 	
     private static Data instance = null
     

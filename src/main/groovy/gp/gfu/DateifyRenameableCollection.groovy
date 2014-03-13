@@ -1,5 +1,3 @@
-import groovy.swing.SwingBuilder
-
 /*
     General File Utility
     Copyright (C) 2012-2014, Gary Paduana, gary.paduana@gmail.com
@@ -17,21 +15,33 @@ import groovy.swing.SwingBuilder
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-public class FileInfoObserver implements Observer{
-	private FileInfoManager fileInfoManager = null
-	private SwingBuilder swingBuilder = null
+package gp.gfu
+
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+
+public class DateifyRenameableCollection extends AbstractRenameableCollection{
+
+	private String dateFormat
+	private Map<Long, Integer> msMap = new TreeMap<Long, Integer>()
 	
-	public FileInfoObserver(FileInfoManager fileInfoManager, SwingBuilder swingBuilder){
-		this.fileInfoManager = fileInfoManager
-		this.swingBuilder = swingBuilder
+	public DateifyRenameableCollection(String topDir, String regex, String dateFormat){
+		super(topDir, regex)
+		this.dateFormat = dateFormat
 	}
 	
-	public void update(Observable obs, Object obj){
-		if(obs == fileInfoManager){
-			swingBuilder.edt{
-				swingBuilder.statusLabel.text = obs.getStatus()
-				swingBuilder.processProgressBar.value = obs.getPercentComplete()
-			}
+	String applyChange(String name, File file){
+		long time = file.lastModified()
+		if(msMap.containsKey(time)){
+			msMap.put(time, msMap.get(time) + 50)
 		}
+		else{
+			msMap.put(time, 0)
+		}
+		
+		time = time + msMap.get(time)
+		
+		DateFormat df = new SimpleDateFormat(dateFormat);
+		return df.format(new Date(time)) + "." + name.substring(name.lastIndexOf(".") + 1, name.length())
 	}
 }

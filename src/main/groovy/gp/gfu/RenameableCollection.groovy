@@ -1,5 +1,3 @@
-import groovy.swing.SwingBuilder
-
 /*
     General File Utility
     Copyright (C) 2012-2014, Gary Paduana, gary.paduana@gmail.com
@@ -17,18 +15,14 @@ import groovy.swing.SwingBuilder
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-public class RenameObserver implements Observer{
-	
-	private SwingBuilder swingBuilder
-	
-	public RenameObserver(SwingBuilder swingBuilder){
-		this.swingBuilder = swingBuilder
-	}
-	
-	public void update(Observable obs, Object obj){
-		swingBuilder.edt{
-			swingBuilder.statusLabel.text = obs.getStatus()
-			swingBuilder.processProgressBar.value = obs.getPercentComplete()
-		}
-	} 
+package gp.gfu
+
+public interface RenameableCollection{
+	Object[][] getData()
+	String[] getColumnNames()
+	void generatePreview()
+	void executeOperation()
+	int getPercentComplete()
+	String getStatus()
+	void setValueAt(Object value, int row, int col)
  }

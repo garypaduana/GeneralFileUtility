@@ -1,0 +1,31 @@
+apply plugin: 'groovy'
+apply plugin: 'application'
+version = '1.0'
+mainClassName='gp.gfu.GeneralFileUtility'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	groovy 'org.codehaus.groovy:groovy-all:2.1.1'
+}
+
+sourceSets{
+	main{
+		resources{
+			srcDir projectDir
+			include 'resources/images/**'
+		}
+	}
+}
+
+task uberjar(type: Jar, dependsOn:[':compileJava',':compileGroovy']) {
+    from files(sourceSets.main.output.classesDir)
+    from configurations.runtime.asFileTree.files.collect { zipTree(it) }
+	from files(sourceSets.main.resources)
+
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
