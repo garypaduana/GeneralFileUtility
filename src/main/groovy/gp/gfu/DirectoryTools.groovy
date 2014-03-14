@@ -37,6 +37,11 @@ public class DirectoryTools{
         return fileList
     }
     
+	/**
+	 * Generates an MD5 signature using all bytes in the file.
+	 * @param file
+	 * @return
+	 */
     public static String generateMD5(File file) {
         MessageDigest digest = MessageDigest.getInstance("MD5")
         digest.reset()
@@ -55,6 +60,15 @@ public class DirectoryTools{
 		return bigInt.toString(16).padLeft(32, '0')
     }
 	
+	/**
+	 * Generates an MD5 signature using up to 1MB (2^20) bytes from the
+	 * beginning of the file.  Useful to quickly determine if two large files
+	 * are different without having to read every byte in each.  If there is
+	 * equality after this method is evaluated for each file then a full
+	 * processing should occur for each.
+	 * @param file
+	 * @return
+	 */
 	public static String generateShortMD5(File file) {
         MessageDigest digest = MessageDigest.getInstance("MD5")
         digest.reset()

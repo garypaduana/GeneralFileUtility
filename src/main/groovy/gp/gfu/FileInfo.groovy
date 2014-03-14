@@ -32,16 +32,45 @@ public class FileInfo{
 		this.hash = hash
 	}
 	
-	public String getPath(){return path}
-	public void setPath(String path){this.path = path}
-	public String getName(){return name}
-	public void setName(String name){this.name = name}
-	public String getHash(){return hash}
-	public void setHash(String hash){this.hash = hash}
-	public String getFirstMbHash(){return firstMbHash}
-	public void setFirstMbHash(String firstMbHash){this.firstMbHash = firstMbHash}
-	public double getSize(){return this.size}
-	public void setSize(double size){this.size = size}
+	public String getPath(){
+		return path
+	}
+	
+	public void setPath(String path){
+		this.path = path
+	}
+	
+	public String getName(){
+		return name
+	}
+	
+	public void setName(String name){
+		this.name = name
+	}
+	
+	public String getHash(){
+		return hash
+	}
+	
+	public void setHash(String hash){
+		this.hash = hash
+	}
+	
+	public String getFirstMbHash(){
+		return firstMbHash
+	}
+	
+	public void setFirstMbHash(String firstMbHash){
+		this.firstMbHash = firstMbHash
+	}
+	
+	public double getSize(){
+		return this.size
+	}
+	
+	public void setSize(double size){
+		this.size = size
+	}
 	
 	@Override
 	public boolean equals(Object o){
@@ -49,16 +78,16 @@ public class FileInfo{
 		FileInfo oArg = ((FileInfo)o)
 		
 		if(oArg.getSize() == this.size){
-			if(oArg.getFirstMbHash() == null && oArg.getSize() > 8192){
+			if(oArg.getFirstMbHash() == null){
 				oArg.setFirstMbHash(DirectoryTools.generateShortMD5(new File(oArg.getPath())))
 			}
-			if(this.firstMbHash == null && oArg.getSize() > 8192){
+			if(this.firstMbHash == null){
 				setFirstMbHash(DirectoryTools.generateShortMD5(new File(this.path)))
 			}
-			
+
 			if(!this.firstMbHash.equals(oArg.getFirstMbHash())){
-				return false				
-			}
+				return false
+			}				
 			else{
 				if(oArg.getHash() == null){
 					oArg.setHash(DirectoryTools.generateMD5(new File(oArg.getPath())))

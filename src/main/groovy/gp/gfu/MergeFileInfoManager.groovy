@@ -23,13 +23,15 @@ public class MergeFileInfoManager extends FileInfoManager{
 	
 	private java.util.List<java.util.List<Object>> interimMergedData = new ArrayList<java.util.List<Object>>()
 	private java.util.List<java.util.List<Object>> interimNotMergedData = new ArrayList<java.util.List<Object>>()
-	private String destinationPath = null
-	private String sourcePath = null
+	private String destinationPath
+	private String sourcePath
+	private boolean copyOnly
 	
-	public MergeFileInfoManager(java.util.List<String> fileList, String destinationPath, String sourcePath){
+	public MergeFileInfoManager(java.util.List<String> fileList, String destinationPath, String sourcePath, boolean copyOnly){
 		super(fileList)
 		this.destinationPath = destinationPath
 		this.sourcePath = sourcePath
+		this.copyOnly = copyOnly
 	}
 	
 	public java.util.List<java.util.List<Object>> getInterimMergedData(){
@@ -63,25 +65,35 @@ public class MergeFileInfoManager extends FileInfoManager{
 				File orig = new File(getFileList().get(i))
 				File dest = new File(destinationPath + "/" + orig.getParent().replace(sourcePath, "") + "/"	+ orig.getName())
 				new File(dest.getParent()).mkdirs()
+				
+				// FIXME: Need to update the "path" field in the data structures to point to the new value.  DOH!
+				// Perhaps do this in the observer. send back a key, value pair with old/new path values.
+				
 				try{
-					// FIXME: Need to update the "path" field in the data structures to point to the new value.  DOH!
-					boolean moved = false;
-					for(int attempt = 0; attempt < 20; attempt++){
-						if(orig.renameTo(dest)){
-							FileInfo temp = Data.getInstance().getPathToFileInfoMap().get(orig.getAbsolutePath())
-							temp.setPath(dest.getAbsolutePath())
-							Data.getInstance().getPathToFileInfoMap().put(dest.getAbsolutePath(), temp)
-							
-							interimMergedData.add(entry)
-							moved = true;
-							break;
-						}
-						println "attempting to garbage collect ${attempt}"
-						System.gc();
-						Thread.sleep(50);
+					if(copyOnly){
+						// Make a copy of the file, do not rename or move it
+						dest.append(orig.newInputStream())
+						interimMergedData.add(entry)
 					}
-					if(!moved){
-						interimNotMergedData.add(entry)
+					else{
+						boolean moved = false;
+						for(int attempt = 0; attempt < 20; attempt++){
+							if(orig.renameTo(dest)){
+								FileInfo temp = Data.getInstance().getPathToFileInfoMap().get(orig.getAbsolutePath())
+								temp.setPath(dest.getAbsolutePath())
+								Data.getInstance().getPathToFileInfoMap().put(dest.getAbsolutePath(), temp)
+								
+								interimMergedData.add(entry)
+								moved = true;
+								break;
+							}
+							println "attempting to garbage collect ${attempt}"
+							System.gc();
+							Thread.sleep(50);
+						}
+						if(!moved){
+							interimNotMergedData.add(entry)
+						}
 					}
 				}
 				catch(Exception ex){

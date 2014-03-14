@@ -84,7 +84,7 @@ class Main{
                 })
             }
             
-            def frame = frame(id:'fileUtilityFrame', title:'General File Utility', size:[900,500], defaultCloseOperation:JFrame.EXIT_ON_CLOSE, locationRelativeTo:null) {
+            def frame = frame(id:'fileUtilityFrame', title:'General File Utility', size:[600,500], defaultCloseOperation:JFrame.EXIT_ON_CLOSE, locationRelativeTo:null) {
                 borderLayout()
                 menuBar(constraints:BorderLayout.NORTH){
                     menu(text: "File", mnemonic: 'F') {
@@ -128,9 +128,6 @@ class Main{
 						scrollPane(constraints: "bottom"){
 							table(id:'duplicateSourcesTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
 						}
-					
-						//widget(new ToolTipJTable(), id:'duplicateFileTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
-						//widget(new ToolTipJTable(), id:'duplicateFileTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
 					}
 					splitPane(title:'Smart Merge', constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:115, resizeWeight: 0.0){
 						panel(constraints:BorderLayout.CENTER){
@@ -146,23 +143,26 @@ class Main{
 							label(text:"Destination Directory", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3,]))
 							textField(id:'destDirTextField', text:"", minimumSize:[300,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
 							button(id:'ellipsisMergeDestButton', text:'Choose Directory...', preferredSize: [150,20], constraints:gbc(gridx:2, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
-									actionPerformed:{
-										launchFileChooserAction(destDirTextField)
-									}
+								actionPerformed:{
+									launchFileChooserAction(destDirTextField)
+								}
 							)
 							
 							panel(constraints:gbc(gridx:0, gridy:2, gridwidth:3, fill:GridBagConstraints.NONE, insets:[3,3,3,3])){
 								flowLayout()
-								button(id:'mergeButton', text:'Merge', preferredSize: [150,20],
-										actionPerformed:{
-											mergeAction()
-										}
+								
+								checkBox(id:'copyNotMoveCheckBox', selected:true, text:'Copy (Don\'t Move)')
+								
+								button(id:'mergeButton', text:'Merge', preferredSize: [110,20],
+									actionPerformed:{
+										mergeAction()
+									}
 								)
 								
-								button(id:'cancelMergeButton', text:'Cancel', preferredSize: [150,20],
-										actionPerformed:{
-											cancelMergeAction()
-										}
+								button(id:'cancelMergeButton', text:'Cancel', preferredSize: [110,20],
+									actionPerformed:{
+										cancelMergeAction()
+									}
 								)
 							}
 						}
@@ -613,6 +613,9 @@ class Main{
 	def mergeAction(){
 		MergeFileInfoManager fileInfoManager = null
 		java.util.List<String> fileList = new ArrayList<String>()
+		boolean copyOnly = swingBuilder.copyNotMoveCheckBox.selected
+		Data.getInstance().getMergedFileInfoDataList().clear()
+		Data.getInstance().getNotMergedFileInfoDataList().clear()
 		
 		swingBuilder.edt{
 			workingStatus()
@@ -625,7 +628,8 @@ class Main{
 			doOutside{
                 fileList.addAll(DirectoryTools.getFileList(swingBuilder.sourceDirTextField.getText()))
 				swingBuilder.cancelScanButton.setEnabled(true)
-				fileInfoManager = new MergeFileInfoManager(fileList, swingBuilder.destDirTextField.getText(), swingBuilder.sourceDirTextField.getText())
+				fileInfoManager = new MergeFileInfoManager(fileList, swingBuilder.destDirTextField.getText(), 
+					swingBuilder.sourceDirTextField.getText(), copyOnly)
 				Data.getInstance().setMergeCanceled(false)
 								
 				FileInfoObserver fileInfoObserver = new FileInfoObserver(fileInfoManager, swingBuilder)
