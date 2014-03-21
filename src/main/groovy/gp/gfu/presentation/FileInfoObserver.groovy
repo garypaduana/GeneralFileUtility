@@ -15,14 +15,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.presentation
 
-public interface RenameableCollection{
-	Object[][] getData()
-	String[] getColumnNames()
-	void generatePreview()
-	void executeOperation()
-	int getPercentComplete()
-	String getStatus()
-	void setValueAt(Object value, int row, int col)
- }
+import gp.gfu.controller.FileInfoManager;
+import groovy.swing.SwingBuilder
+
+public class FileInfoObserver implements Observer{
+	private FileInfoManager fileInfoManager = null
+	private SwingBuilder swingBuilder = null
+	
+	public FileInfoObserver(FileInfoManager fileInfoManager, SwingBuilder swingBuilder){
+		this.fileInfoManager = fileInfoManager
+		this.swingBuilder = swingBuilder
+	}
+	
+	public void update(Observable obs, Object obj){
+		if(obs == fileInfoManager){
+			swingBuilder.edt{
+				swingBuilder.statusLabel.text = obs.getStatus()
+				swingBuilder.processProgressBar.value = obs.getPercentComplete()
+			}
+		}
+	}
+}

@@ -15,8 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.main
 
+import gp.gfu.domain.TrimmedRenameableCollection.TrimEnd;
+import gp.gfu.controller.FileInfoManager;
+import gp.gfu.controller.MergeFileInfoManager;
+import gp.gfu.domain.Data;
+import gp.gfu.domain.DateifyRenameableCollection;
+import gp.gfu.domain.FileInfo;
+import gp.gfu.domain.InsertRenameableCollection;
+import gp.gfu.domain.RenameableCollection;
+import gp.gfu.domain.ReplaceableRenameableCollection;
+import gp.gfu.domain.SeriesRenameableCollection;
+import gp.gfu.domain.TrimmedRenameableCollection;
+import gp.gfu.presentation.FileInfoObserver;
+import gp.gfu.presentation.MyTableModel;
+import gp.gfu.presentation.RenameObserver;
+import gp.gfu.util.Calculations;
 import groovy.swing.SwingBuilder
 
 import java.awt.BorderLayout
@@ -117,16 +132,39 @@ class Main{
 								)
 							}
                         }
-                        scrollPane(constraints: "bottom"){
-                            table(id:'fileTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
-                        }
+						
+						panel(constraints:"bottom"){
+							borderLayout()
+							panel(constraints:BorderLayout.NORTH){
+								flowLayout()
+								label(text:"All Files")
+							}
+							scrollPane(constraints: BorderLayout.CENTER){
+								table(id:'fileTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
+							}
+						}
                     }
 					splitPane(title:'Duplicate Files', constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:250, resizeWeight: 0.5){
-						scrollPane(constraints: "top"){
-							table(id:'duplicateFileTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
+						panel(constraints:"top"){
+							borderLayout()
+							panel(constraints:BorderLayout.NORTH){
+								flowLayout()
+								label(text:"Duplicate File Signatures (with one randomly selected instance)")
+							}
+							scrollPane(constraints: BorderLayout.CENTER){
+								table(id:'duplicateFileTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
+							}
 						}
-						scrollPane(constraints: "bottom"){
-							table(id:'duplicateSourcesTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
+						
+						panel(constraints:"bottom"){
+							borderLayout()
+							panel(constraints:BorderLayout.NORTH){
+								flowLayout()
+								label(text:"All Instances of Chosen File Signature")
+							}
+							scrollPane(constraints: BorderLayout.CENTER){
+								table(id:'duplicateSourcesTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
+							}
 						}
 					}
 					splitPane(title:'Smart Merge', constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:115, resizeWeight: 0.0){
@@ -261,7 +299,7 @@ class Main{
 														renameableCollection.addObserver(renameObserver)
 														renameableCollection.generatePreview()
 														renamePreviewTable.setModel(new MyTableModel(renameableCollection.getData(), renameableCollection.getColumnNames(), renameableCollection))
-														renamePreviewTable = ComponentModifier.resizeJTable(renamePreviewTable, renamePreviewTable.getFont())
+														renamePreviewTable = Calculations.resizeJTable(renamePreviewTable, renamePreviewTable.getFont())
 														Data.getInstance().setRenameableCollection(renameableCollection)
 													}
 													catch(Exception ex){
@@ -414,7 +452,7 @@ class Main{
 							int[] selectedRows = swingBuilder.duplicateFileTable.getSelectedRows()
 							String hash = swingBuilder.duplicateFileTable.getValueAt(selectedRows[0], 2)							
 							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(Data.getInstance().getUniqueFilesMap().get(hash)), Data.getInstance().getColumnNames(), null))
-							swingBuilder.duplicateSourcesTable = ComponentModifier.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
+							swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 						}
 					}
 				}
@@ -435,7 +473,7 @@ class Main{
 							String hash = swingBuilder.duplicateFileTable.getValueAt(selectedRows[0], 2)
 							duplicateFileLastSelectedHash = hash							
 							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(Data.getInstance().getUniqueFilesMap().get(hash)), Data.getInstance().getColumnNames(), null))
-							swingBuilder.duplicateSourcesTable = ComponentModifier.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
+							swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 						}
 					}
 				}
@@ -462,7 +500,7 @@ class Main{
 			swingBuilder.processProgressBar.indeterminate = true
 			doOutside{
 				try{
-					parity = Parity.calculateParity(swingBuilder.parityTextArea.getText(), Integer.valueOf(swingBuilder.parityLengthTextField.getText()))
+					parity = Calculations.calculateParity(swingBuilder.parityTextArea.getText(), Integer.valueOf(swingBuilder.parityLengthTextField.getText()))
 					doLater{
 						swingBuilder.expectedParityLabel.setText(parity)
 						swingBuilder.statusLabel.setText("")
@@ -626,7 +664,7 @@ class Main{
 			swingBuilder.cancelMergeButton.setEnabled(true)
         
 			doOutside{
-                fileList.addAll(DirectoryTools.getFileList(swingBuilder.sourceDirTextField.getText()))
+                fileList.addAll(Calculations.getFileList(swingBuilder.sourceDirTextField.getText()))
 				swingBuilder.cancelScanButton.setEnabled(true)
 				fileInfoManager = new MergeFileInfoManager(fileList, swingBuilder.destDirTextField.getText(), 
 					swingBuilder.sourceDirTextField.getText(), copyOnly)
@@ -641,7 +679,7 @@ class Main{
 				
 				doLater{
 					finishedWorkStatus()
-					swingBuilder.statusLabel.text = "Recent Merge Analzyed Files: ${ComponentModifier.customFormat('###,###,###', fileInfoManager.getFilesProcessedCount())}  Size: ${ComponentModifier.customFormat('###,###,###,###,###', fileInfoManager.getTotalSize())} bytes"
+					swingBuilder.statusLabel.text = "Recent Merge Analzyed Files: ${Calculations.customFormat('###,###,###', fileInfoManager.getFilesProcessedCount())}  Size: ${Calculations.customFormat('###,###,###,###,###', fileInfoManager.getTotalSize())} bytes"
 					updateMergeTableData()
 					swingBuilder.scanDirectoryButton.setEnabled(true)
 					swingBuilder.clearScanButton.setEnabled(true)
@@ -664,7 +702,7 @@ class Main{
 			swingBuilder.mergeButton.setEnabled(false)
         
 			doOutside{
-                fileList.addAll(DirectoryTools.getFileList(swingBuilder.scanDirTextField.getText()))
+                fileList.addAll(Calculations.getFileList(swingBuilder.scanDirTextField.getText()))
 				swingBuilder.cancelScanButton.setEnabled(true)
 				fileInfoManager = new FileInfoManager(fileList)
 				Data.getInstance().setScanCanceled(false)
@@ -677,7 +715,7 @@ class Main{
 				
 				doLater{
 					finishedWorkStatus()
-					swingBuilder.statusLabel.text = "Recent Scan: ${ComponentModifier.customFormat('###,###,###', fileInfoManager.getFilesProcessedCount())} files; Size: ${ComponentModifier.customFormat('###,###,###,###,###', fileInfoManager.getTotalSize())} bytes"
+					swingBuilder.statusLabel.text = "Recent Scan: ${Calculations.customFormat('###,###,###', fileInfoManager.getFilesProcessedCount())} files; Size: ${Calculations.customFormat('###,###,###,###,###', fileInfoManager.getTotalSize())} bytes"
 					updateTableData()
 					swingBuilder.scanDirectoryButton.setEnabled(true)
 					swingBuilder.clearScanButton.setEnabled(true)
@@ -691,13 +729,14 @@ class Main{
 	def updateTableData(){
 		swingBuilder.edt{
 			swingBuilder.fileTable.setModel(new MyTableModel(Data.getInstance().getFileInfoData(Data.getInstance().getFileInfoDataList()), Data.getInstance().getColumnNames(), null))
-			swingBuilder.fileTable = ComponentModifier.resizeJTable(swingBuilder.fileTable, swingBuilder.fileTable.getFont())
+			swingBuilder.fileTable = Calculations.resizeJTable(swingBuilder.fileTable, swingBuilder.fileTable.getFont())
 			swingBuilder.duplicateFileTable.setModel(new MyTableModel(fileMapInfoToArray(Data.getInstance().getUniqueFilesMap()), Data.getInstance().getColumnNames(), null))
-			swingBuilder.duplicateFileTable = ComponentModifier.resizeJTable(swingBuilder.duplicateFileTable, swingBuilder.duplicateFileTable.getFont())
+			swingBuilder.duplicateFileTable = Calculations.resizeJTable(swingBuilder.duplicateFileTable, swingBuilder.duplicateFileTable.getFont())
 			
-			if(duplicateFileLastSelectedHash.length() > 0 && Data.getInstance().getUniqueFilesMap().containsKey(duplicateFileLastSelectedHash)){
+			if(duplicateFileLastSelectedHash != null && duplicateFileLastSelectedHash.length() > 0 &&
+			   Data.getInstance().getUniqueFilesMap().containsKey(duplicateFileLastSelectedHash)){
 				swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(Data.getInstance().getUniqueFilesMap().get(duplicateFileLastSelectedHash)), Data.getInstance().getColumnNames(), null))
-				swingBuilder.duplicateSourcesTable = ComponentModifier.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
+				swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 			}
 			else{
 				swingBuilder.duplicateSourcesTable.setModel(new MyTableModel())
@@ -708,9 +747,9 @@ class Main{
 	def updateMergeTableData(){
 		swingBuilder.edt{
 			swingBuilder.copiedFileTable.setModel(new MyTableModel(Data.getInstance().getFileInfoData(Data.getInstance().getMergedFileInfoDataList()), Data.getInstance().getColumnNames(), null))
-			swingBuilder.copiedFileTable = ComponentModifier.resizeJTable(swingBuilder.copiedFileTable, swingBuilder.copiedFileTable.getFont())
+			swingBuilder.copiedFileTable = Calculations.resizeJTable(swingBuilder.copiedFileTable, swingBuilder.copiedFileTable.getFont())
 			swingBuilder.notCopiedFileTable.setModel(new MyTableModel(Data.getInstance().getFileInfoData(Data.getInstance().getNotMergedFileInfoDataList()), Data.getInstance().getColumnNames(), null))
-			swingBuilder.notCopiedFileTable = ComponentModifier.resizeJTable(swingBuilder.notCopiedFileTable, swingBuilder.notCopiedFileTable.getFont())
+			swingBuilder.notCopiedFileTable = Calculations.resizeJTable(swingBuilder.notCopiedFileTable, swingBuilder.notCopiedFileTable.getFont())
 		}
 	}
 	

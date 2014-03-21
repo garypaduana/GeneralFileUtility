@@ -15,7 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.presentation
+
+import gp.gfu.domain.RenameableCollection;
 
 import javax.swing.table.AbstractTableModel
 

@@ -1,7 +1,7 @@
 apply plugin: 'groovy'
 apply plugin: 'application'
 version = '1.0'
-mainClassName='gp.gfu.GeneralFileUtility'
+mainClassName='gp.gfu.main.GeneralFileUtility'
 
 repositories {
     mavenCentral()

@@ -14,7 +14,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-package gp.gfu
+package gp.gfu.domain
+
+import gp.gfu.util.Calculations
 
 public abstract class AbstractRenameableCollection extends Observable implements RenameableCollection{
     private Object[][] data
@@ -109,7 +111,7 @@ public abstract class AbstractRenameableCollection extends Observable implements
         setStatus("Generating file listing...")
         notifyObservers()
         
-        getFiles().addAll(DirectoryTools.getFileList(getTopDir()))
+        getFiles().addAll(Calculations.getFileList(getTopDir()))
         filterFiles()
         getInterimData().clear()
         

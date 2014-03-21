@@ -15,16 +15,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.presentation
 
-public class InsertRenameableCollection extends AbstractRenameableCollection{
-		
-	public InsertRenameableCollection(String topDir, String regex){
-		super(topDir, regex)
-	}
+import gp.gfu.domain.Data;
+
+import java.awt.event.MouseEvent
+
+import javax.swing.JTable
+
+public class ToolTipJTable extends JTable{
 	
-	String applyChange(String name, File file){
-		println name
-		return name
+	//Implement table cell tool tips.
+	@Override
+	public String getToolTipText(MouseEvent e) {
+		java.awt.Point p = e.getPoint();
+		int rowIndex = rowAtPoint(p);
+		int colIndex = columnAtPoint(p);
+		int realColumnIndex = convertColumnIndexToModel(colIndex);
+
+		String hash = (String) getValueAt(rowIndex, 2)
+
+		if(Data.getInstance().getUniqueFilesMap().containsKey(hash)){
+			return Data.getInstance().getUniqueFilesMap().get(hash).getPath()
+		}
+		// Returning null prevents a tool tip from appearing if nothing is found		
+		return null
 	}
 }

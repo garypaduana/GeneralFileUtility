@@ -15,7 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.controller
+
+import gp.gfu.domain.Data;
+import gp.gfu.domain.FileInfo;
+import gp.gfu.util.Calculations;
 
 public class FileInfoManager extends Observable{
 
@@ -53,7 +57,7 @@ public class FileInfoManager extends Observable{
 		entry.add(size)
 		totalSize += size
 		percentComplete = (int)(((i + 1) / fileList.size()) * 100)
-		status = "Processing: ${i+1} / ${fileList.size()} Total Progress: ${percentComplete}% Current File: ${new File(fileList.get(i)).name} (${ComponentModifier.customFormat('###,###,###,###,###', size)} bytes)"
+		status = "Processing: ${i+1} / ${fileList.size()} Total Progress: ${percentComplete}% Current File: ${new File(fileList.get(i)).name} (${Calculations.customFormat('###,###,###,###,###', size)} bytes)"
 		notifyObservers()
 		FileInfo fileInfo = new FileInfo(fileList.get(i), new File(fileList.get(i)).getName(), size)
 		++filesProcessedCount

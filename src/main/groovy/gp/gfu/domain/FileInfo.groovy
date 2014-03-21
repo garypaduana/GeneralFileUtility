@@ -15,7 +15,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.domain
+
+import gp.gfu.util.Calculations;
 
 public class FileInfo{
 	
@@ -79,10 +81,10 @@ public class FileInfo{
 		
 		if(oArg.getSize() == this.size){
 			if(oArg.getFirstMbHash() == null){
-				oArg.setFirstMbHash(DirectoryTools.generateShortMD5(new File(oArg.getPath())))
+				oArg.setFirstMbHash(Calculations.generateShortMD5(new File(oArg.getPath())))
 			}
 			if(this.firstMbHash == null){
-				setFirstMbHash(DirectoryTools.generateShortMD5(new File(this.path)))
+				setFirstMbHash(Calculations.generateShortMD5(new File(this.path)))
 			}
 
 			if(!this.firstMbHash.equals(oArg.getFirstMbHash())){
@@ -90,10 +92,10 @@ public class FileInfo{
 			}				
 			else{
 				if(oArg.getHash() == null){
-					oArg.setHash(DirectoryTools.generateMD5(new File(oArg.getPath())))
+					oArg.setHash(Calculations.generateMD5(new File(oArg.getPath())))
 				}	
 				if(this.hash == null){
-					this.hash = DirectoryTools.generateMD5(new File(this.path))
+					this.hash = Calculations.generateMD5(new File(this.path))
 				}
 				if(oArg.getHash().equals(this.hash)){
 					return true

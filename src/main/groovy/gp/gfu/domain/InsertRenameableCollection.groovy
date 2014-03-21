@@ -15,20 +15,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.domain
 
-public class ReplaceableRenameableCollection extends AbstractRenameableCollection{
-	
-	private String replace = ""
-	private String with = ""
-	
-	public ReplaceableRenameableCollection(String topDir, String regex, String replace, String with){
+
+public class InsertRenameableCollection extends AbstractRenameableCollection{
+		
+	public InsertRenameableCollection(String topDir, String regex){
 		super(topDir, regex)
-		this.replace = replace
-		this.with = with
 	}
 	
 	String applyChange(String name, File file){
-		return name.replace(replace, with)
+		println name
+		return name
 	}
- }
+}

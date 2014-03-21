@@ -15,7 +15,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.controller
+
+import gp.gfu.domain.Data;
+import gp.gfu.domain.FileInfo;
 
 import javax.swing.ImageIcon
 

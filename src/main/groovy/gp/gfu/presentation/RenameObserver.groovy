@@ -15,27 +15,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package gp.gfu
+package gp.gfu.presentation
 
-import java.awt.event.MouseEvent
-import javax.swing.JTable
+import groovy.swing.SwingBuilder
 
-public class ToolTipJTable extends JTable{
+public class RenameObserver implements Observer{
 	
-	//Implement table cell tool tips.
-	@Override
-	public String getToolTipText(MouseEvent e) {
-		java.awt.Point p = e.getPoint();
-		int rowIndex = rowAtPoint(p);
-		int colIndex = columnAtPoint(p);
-		int realColumnIndex = convertColumnIndexToModel(colIndex);
-
-		String hash = (String) getValueAt(rowIndex, 2)
-
-		if(Data.getInstance().getUniqueFilesMap().containsKey(hash)){
-			return Data.getInstance().getUniqueFilesMap().get(hash).getPath()
-		}
-		// Returning null prevents a tool tip from appearing if nothing is found		
-		return null
+	private SwingBuilder swingBuilder
+	
+	public RenameObserver(SwingBuilder swingBuilder){
+		this.swingBuilder = swingBuilder
 	}
-}
+	
+	public void update(Observable obs, Object obj){
+		swingBuilder.edt{
+			swingBuilder.statusLabel.text = obs.getStatus()
+			swingBuilder.processProgressBar.value = obs.getPercentComplete()
+		}
+	} 
+ }
