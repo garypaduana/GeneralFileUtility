@@ -69,6 +69,7 @@ class Main{
 	private String duplicateFileLastSelectedHash
 	public enum WORK_STATE {CONTINUE, CANCEL}
 	private String parity
+	private int lastParityTextAreaLength
 
 	public Main(){
         initializeGUI()
@@ -370,8 +371,11 @@ class Main{
 						}	
 						scrollPane(constraints:"bottom"){
 							textArea(id:'parityTextArea', font:new Font("Courier New", Font.PLAIN, 14),
-								keyReleased:{ 
-									formatParityText(4, 8)
+								keyReleased:{
+									if(parityTextArea.getText().length() != lastParityTextAreaLength){
+										formatParityText(4, 8)
+										lastParityTextAreaLength = parityTextArea.getText().length()
+									}
 								}	
 							)
 						}						
@@ -525,26 +529,17 @@ class Main{
 	/**
 	 * Takes free-form input and formats it with digit grouping.
 	 * 
-	 * FIXME: Pasted text is not sanitized, only works one input char at a time
 	 * @return
 	 */
 	def formatParityText(int charsPerWord, int wordsPerLine){
 		swingBuilder.edt{
 			
 			String text = swingBuilder.parityTextArea.getText()
-			StringTokenizer st = new StringTokenizer(text)
-			StringBuilder clean = new StringBuilder()
 			StringBuilder sb = new StringBuilder()
 			
 			doOutside{
-				while(st.hasMoreTokens()){
-					clean.append(st.nextToken())
-				}
-				text = clean.toString()
-				if(!(text ==~ /[0-9ABCDEFabcdef]+/)){
-					// remove the last character if it does not match the regex
-					text = text.length() > 1 ? (text.substring(0, text.length() - 1)) : text
-				}
+				
+				text = text.replaceAll("[^0-9ABCDEFabcdef]", '')
 				calculateParity(text)
 				
 				// We want the output to look like this:
