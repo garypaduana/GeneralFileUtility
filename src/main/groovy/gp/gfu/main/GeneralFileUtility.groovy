@@ -99,7 +99,7 @@ class Main{
                 })
             }
             
-            def frame = frame(id:'fileUtilityFrame', title:'General File Utility', size:[600,500], defaultCloseOperation:JFrame.EXIT_ON_CLOSE, locationRelativeTo:null) {
+            def frame = frame(id:'fileUtilityFrame', title:'General File Utility', preferredSize:[800,700], defaultCloseOperation:JFrame.EXIT_ON_CLOSE, locationRelativeTo:null) {
                 borderLayout()
                 menuBar(constraints:BorderLayout.NORTH){
                     menu(text: "File", mnemonic: 'F') {
@@ -365,11 +365,15 @@ class Main{
 							label(text:"Expected Parity:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
 							label(id:'expectedParityLabel', text:"0", constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
 							button(id:'calculateParity', text:"Calc!", enabled:true, preferredSize: [110,20], constraints:gbc(gridx:0, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
-									actionPerformed: {calculateParity()}
+									actionPerformed: {calculateParity(parityTextArea.getText())}
 							)
 						}	
 						scrollPane(constraints:"bottom"){
-							textArea(id:'parityTextArea', font:new Font("Courier New", Font.PLAIN, 14))
+							textArea(id:'parityTextArea', font:new Font("Courier New", Font.PLAIN, 14),
+								keyReleased:{ 
+									formatParityText(4, 8)
+								}	
+							)
 						}						
 					}
                 }
@@ -495,12 +499,12 @@ class Main{
         }
     }
 	
-	def calculateParity(){
+	def calculateParity(String text){
 		swingBuilder.edt{						
 			swingBuilder.processProgressBar.indeterminate = true
 			doOutside{
 				try{
-					parity = Calculations.calculateParity(swingBuilder.parityTextArea.getText(), Integer.valueOf(swingBuilder.parityLengthTextField.getText()))
+					parity = Calculations.calculateParity(text, Integer.valueOf(swingBuilder.parityLengthTextField.getText()))
 					doLater{
 						swingBuilder.expectedParityLabel.setText(parity)
 						swingBuilder.statusLabel.setText("")
@@ -515,6 +519,56 @@ class Main{
 					}
 				}				
 			}
+		}
+	}
+	
+	/**
+	 * Takes free-form input and formats it with digit grouping.
+	 * 
+	 * FIXME: Pasted text is not sanitized, only works one input char at a time
+	 * @return
+	 */
+	def formatParityText(int charsPerWord, int wordsPerLine){
+		swingBuilder.edt{
+			
+			String text = swingBuilder.parityTextArea.getText()
+			StringTokenizer st = new StringTokenizer(text)
+			StringBuilder clean = new StringBuilder()
+			StringBuilder sb = new StringBuilder()
+			
+			doOutside{
+				while(st.hasMoreTokens()){
+					clean.append(st.nextToken())
+				}
+				text = clean.toString()
+				if(!(text ==~ /[0-9ABCDEFabcdef]+/)){
+					// remove the last character if it does not match the regex
+					text = text.length() > 1 ? (text.substring(0, text.length() - 1)) : text
+				}
+				calculateParity(text)
+				
+				// We want the output to look like this:
+				// 1234 5233 5923 4234 ab32 def9 acd3 92ff
+				// 16 bits x 8 = 128 bits per row = 16 bytes per row
+				
+				for(int i = 0; i < text.length(); i += charsPerWord){
+					if(i % (charsPerWord * wordsPerLine) == 0 && i > 0){
+						// remove trailing space
+						sb.setLength(sb.length() - 1)
+						sb.append("\n")
+					}
+					
+					int end = (i + charsPerWord > text.length()) ? (text.length()) : (i + charsPerWord)
+					sb.append(text.substring(i, end))
+					sb.append(" ")
+				}	
+				sb.setLength(sb.toString().trim().length())
+				
+				doLater{
+					swingBuilder.parityTextArea.setText(sb.toString())
+				}
+			}
+			
 		}
 	}
 	
