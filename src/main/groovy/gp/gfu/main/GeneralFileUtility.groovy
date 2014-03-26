@@ -41,6 +41,8 @@ import java.awt.Insets
 import java.awt.Point
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
+import java.awt.event.AdjustmentEvent
+import java.awt.event.AdjustmentListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.util.Collection
@@ -54,6 +56,7 @@ import javax.swing.JFrame
 import javax.swing.JMenuItem
 import javax.swing.JOptionPane
 import javax.swing.JPopupMenu
+import javax.swing.JScrollPane
 import javax.swing.JSplitPane
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
@@ -365,19 +368,26 @@ class Main{
 							textField(id:'parityLengthTextField', text:'16', preferredSize:[100,20], minimumSize:[100,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
 							label(text:"Expected Parity:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
 							label(id:'expectedParityLabel', text:"0", constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-							button(id:'calculateParity', text:"Calc!", enabled:true, preferredSize: [110,20], constraints:gbc(gridx:0, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
-									actionPerformed: {calculateParity(parityTextArea.getText())}
-							)
 						}	
-						scrollPane(constraints:"bottom"){
-							textArea(id:'parityTextArea', font:new Font("Courier New", Font.PLAIN, 14),
-								keyReleased:{
-									if(parityTextArea.getText().length() != lastParityTextAreaLength){
-										formatParityText(4, 8)
-										lastParityTextAreaLength = parityTextArea.getText().length()
-									}
-								}	
-							)
+						panel(constraints:"bottom"){
+							borderLayout()
+							scrollPane(id:'parityRowCounterJScrollPane',
+									   constraints: BorderLayout.WEST, 
+									   verticalScrollBarPolicy:JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+									   horizontalScrollBarPolicy:JScrollPane.HORIZONTAL_SCROLLBAR_NEVER){
+								textArea(id:'parityRowCounterTextArea', font:new Font("Courier New", Font.PLAIN, 14), text:"00000000 ", editable:false)
+							}
+							scrollPane(id:'parityJScrollPane',
+									   constraints: BorderLayout.CENTER){
+								   textArea(id:'parityTextArea', font:new Font("Courier New", Font.PLAIN, 14),
+									keyReleased:{
+										if(parityTextArea.getText().length() != lastParityTextAreaLength){
+											formatParityText(4, 8)
+											lastParityTextAreaLength = parityTextArea.getText().length()
+										}
+									}	
+								)
+							}
 						}						
 					}
                 }
@@ -387,6 +397,13 @@ class Main{
                     progressBar(id:'processProgressBar', constraints:BorderLayout.EAST)
                 }
             }
+			
+			parityJScrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener(){ 
+				@Override
+				public void adjustmentValueChanged(AdjustmentEvent e) {
+				   swingBuilder.parityRowCounterJScrollPane.getVerticalScrollBar().setValue(e.getValue());
+				}
+			})
 							
             fileTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 				public void valueChanged(ListSelectionEvent e) { 
@@ -511,14 +528,12 @@ class Main{
 					parity = Calculations.calculateParity(text, Integer.valueOf(swingBuilder.parityLengthTextField.getText()))
 					doLater{
 						swingBuilder.expectedParityLabel.setText(parity)
-						swingBuilder.statusLabel.setText("")
 						swingBuilder.processProgressBar.indeterminate = false
 					}
 				}
 				catch(Exception ex){
 					doLater{
-						swingBuilder.statusLabel.setText(ex.getMessage())
-						swingBuilder.expectedParityLabel.setText("")
+						swingBuilder.expectedParityLabel.setText(ex.getMessage())
 						swingBuilder.processProgressBar.indeterminate = false
 					}
 				}				
@@ -536,21 +551,28 @@ class Main{
 			
 			String text = swingBuilder.parityTextArea.getText()
 			StringBuilder sb = new StringBuilder()
+			StringBuilder counter = new StringBuilder()
+			counter.append("00000000 ")
 			
 			doOutside{
-				
-				text = text.replaceAll("[^0-9ABCDEFabcdef]", '')
+								
+				text = text.replaceAll("[^0-9ABCDEFabcdef]", '')	
+					
+				int bits = text.length() * 4
+				int bytes = bits % 8 == 0 ? (bits / 8) : (bits / 8 + 1)
+				String label = "Length: ${Calculations.customFormat('###,###,###', text.length())} hex chars; " +
+							   "${Calculations.customFormat('###,###,###', bits)} bits; " +
+							   "${Calculations.customFormat('###,###,###', bytes)} bytes"
 				calculateParity(text)
 				
 				// We want the output to look like this:
-				// 1234 5233 5923 4234 ab32 def9 acd3 92ff
-				// 16 bits x 8 = 128 bits per row = 16 bytes per row
-				
+				// 1234 5233 5923 4234 ab32 def9 acd3 92ff [...]
 				for(int i = 0; i < text.length(); i += charsPerWord){
 					if(i % (charsPerWord * wordsPerLine) == 0 && i > 0){
 						// remove trailing space
 						sb.setLength(sb.length() - 1)
 						sb.append("\n")
+						counter.append("\n" + Integer.toString((i / 2).intValue(), 8).padLeft(8, '0') + " ")
 					}
 					
 					int end = (i + charsPerWord > text.length()) ? (text.length()) : (i + charsPerWord)
@@ -561,6 +583,8 @@ class Main{
 				
 				doLater{
 					swingBuilder.parityTextArea.setText(sb.toString())
+					swingBuilder.statusLabel.setText(label)
+					swingBuilder.parityRowCounterTextArea.setText(counter.toString())
 				}
 			}
 			
