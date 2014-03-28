@@ -21,10 +21,12 @@ import java.awt.Font;
 import java.awt.FontMetrics
 import java.io.File;
 import java.security.MessageDigest
+import java.security.Provider
+import java.security.Security
 import java.text.DecimalFormat
 
-import javax.swing.ImageIcon;
-import javax.swing.JTable;
+import javax.swing.ImageIcon
+import javax.swing.JTable
 
 class Calculations {
 
@@ -69,6 +71,24 @@ class Calculations {
 		return decimalFormat.format(value);
 	}
 	
+	public static byte[] decodeMessyHexToByteArray(String text){
+		text = text.replaceAll("[^0-9ABCDEFabcdef]", '')
+		
+		int bitCount = text.length() * 4
+		int byteCount = bitCount % 8 == 0 ? (bitCount / 8) : (bitCount / 8 + 1)
+		
+		byte[] bytes = new byte[byteCount]
+		
+		int j = 0
+		for(int i = 0; i < text.length(); i += 2){
+			int end = (i + 2) <= text.length() ? (i + 2) : text.length()
+			bytes[j] = 0xFF & Integer.valueOf(text.substring(i, end), 16)
+			j++
+		}
+		
+		return bytes
+	}
+	
 	public static String calculateParity(String hex, int parityBitLength){
 		
 		long parity = 0
@@ -94,7 +114,7 @@ class Calculations {
 			parity = parity ^ piece
 		}
 		
-		return "0x" + Long.toHexString(parity).toUpperCase()
+		return Long.toHexString(parity).toLowerCase()
 	}
 	
 	public static java.util.List<String> getFileList(String filePath){
@@ -107,6 +127,105 @@ class Calculations {
 			}
 		}
 		return fileList
+	}
+	
+	public static String safeSubstring(String str, int start, int end){
+		if(start >= str.length()){
+			return ""
+		}
+		
+		if(end < start){
+			return ""
+		}
+		
+		if(start < str.length() && end > str.length()){
+			return str.substring(start, str.length())
+		}
+		
+		if(start < str.length() && end <= str.length()){
+			return str.substring(start, end)
+		}
+	}
+	
+	public static List<List<String>> calculateAllMessageDigests(String text){
+	    List<List<String>> results = new ArrayList<List<String>>()
+	    
+		// [provider, string length]
+	    [['MD5', 32], ['SHA1', 40], ['SHA-256', 64], 
+		 ['SHA-384', 96], ['SHA-512', 128]].each(){
+	        try{
+	            List<String> entry = new ArrayList<String>()
+	            entry.add(it[0])            
+	            MessageDigest digest = MessageDigest.getInstance(it[0])
+	            digest.reset()
+	            digest.update(decodeMessyHexToByteArray(text))
+	        
+	            byte[] sum = digest.digest()
+	            BigInteger bigInt = new BigInteger(1, sum)
+	            String result = bigInt.toString(16).padLeft(it[1], '0')
+	            entry.add(result)
+	            results.add(entry)
+	        }
+	        catch(Exception ex){        
+	           println ex.getMessage()
+	        }
+		 }
+		 
+		 [4, 8, 16, 32].each {
+			 
+			 List<String> entry = new ArrayList<String>()
+			 entry.add("${it}-bit parity")
+			 try{
+				 entry.add(Calculations.calculateParity(text, it))
+			 }
+			 catch (Exception e){
+				 entry.add(e.getMessage())
+			 }
+			 results.add(entry)
+			 
+		 }
+		
+		 // [radix, description, leftPadding, container bit size]
+		 [[2, "Binary", 8, 32], 
+		  [8, "Octal", 3, 32],
+		  [10, "Decimal (> 8-bit)", 0, 32],
+		  [10, "Decimal (8-bit)", 0, 8], 
+		  [16, "Hexadecimal", 2, 32],
+		  [128, "ASCII", 0, 16]].each {
+			 List<String> entry = new ArrayList<String>()
+			 entry.add(it[1])
+			 String decoded = decodeToRadix(text, it[0], it[2], it[3])
+			 if(decoded.length() > 64){
+				 decoded = decoded.substring(0, 32) + "..." + 
+				 			decoded.substring(decoded.length() - 32, decoded.length())
+			 }
+			 entry.add(decoded)
+			 results.add(entry)
+		 }
+		
+	    return results
+	}
+	
+	public static String decodeToRadix(String text, int radix, int pad, int containerSize){
+		StringBuilder sb = new StringBuilder()
+
+		for(int i = 0; i < text.length(); i += 2){
+			int end = (text.length() > i + 2) ? (i + 2) : text.length()
+			String val
+			int decoded = Integer.decode("0x" + text.substring(i, end)) & 0xFF
+			
+			if(containerSize == 8){
+				decoded = (byte) (decoded & 0xFF)
+			}
+			if(containerSize == 16){
+				sb.append(String.valueOf((char) decoded).replaceAll(/[^\p{Print}]/, "."))
+			}
+			else{
+				sb.append(Integer.toString(decoded, (radix)).padLeft(pad, '0'))
+				sb.append(" ")
+			}
+		}
+		return sb.toString()
 	}
 	
 	/**

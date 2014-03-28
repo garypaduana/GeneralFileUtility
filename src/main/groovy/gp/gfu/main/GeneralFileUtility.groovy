@@ -28,6 +28,7 @@ import gp.gfu.domain.RenameableCollection;
 import gp.gfu.domain.ReplaceableRenameableCollection;
 import gp.gfu.domain.SeriesRenameableCollection;
 import gp.gfu.domain.TrimmedRenameableCollection;
+import gp.gfu.presentation.BasicTableModel
 import gp.gfu.presentation.FileInfoObserver;
 import gp.gfu.presentation.MyTableModel;
 import gp.gfu.presentation.RenameObserver;
@@ -49,6 +50,8 @@ import java.util.Collection
 import java.util.Map
 
 import javax.swing.DefaultComboBoxModel
+import javax.swing.event.CaretEvent
+import javax.swing.event.CaretListener
 import javax.swing.event.ListSelectionEvent
 import javax.swing.event.ListSelectionListener
 import javax.swing.JFileChooser
@@ -104,7 +107,7 @@ class Main{
             }
             
             def frame = frame(id:'fileUtilityFrame', title:'General File Utility', preferredSize:[800,700], defaultCloseOperation:JFrame.EXIT_ON_CLOSE, locationRelativeTo:null) {
-                borderLayout()
+				borderLayout()
                 menuBar(constraints:BorderLayout.NORTH){
                     menu(text: "File", mnemonic: 'F') {
                         menuItem(exitMenuItem)
@@ -361,25 +364,19 @@ class Main{
 							table(id:'renamePreviewTable', autoCreateRowSorter:true, autoResizeMode:0, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:false, showVerticalLines:false)
 						}
 					}
-					splitPane(title:"Parity", constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:140){
-						panel(constraints:"top"){
-							gridBagLayout()
-							label(text:"Parity Length (bits):", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-							textField(id:'parityLengthTextField', text:'16', preferredSize:[100,20], minimumSize:[100,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-							label(text:"Expected Parity:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-							label(id:'expectedParityLabel', text:"0", constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-						}	
+					splitPane(title:"Binary Operations", constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:140){
+						scrollPane(constraints:"top"){
+							table(id:'digestProvidersTable', font:new Font("Courier New", Font.PLAIN, 14), autoCreateRowSorter:true, autoResizeMode:1, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
+						}
 						panel(constraints:"bottom"){
 							borderLayout()
-							scrollPane(id:'parityRowCounterJScrollPane',
-									   constraints: BorderLayout.WEST, 
+							scrollPane(id:'parityRowCounterJScrollPane', constraints: BorderLayout.WEST, 
 									   verticalScrollBarPolicy:JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 									   horizontalScrollBarPolicy:JScrollPane.HORIZONTAL_SCROLLBAR_NEVER){
 								textArea(id:'parityRowCounterTextArea', font:new Font("Courier New", Font.PLAIN, 14), text:"00000000 ", editable:false)
 							}
-							scrollPane(id:'parityJScrollPane',
-									   constraints: BorderLayout.CENTER){
-								   textArea(id:'parityTextArea', font:new Font("Courier New", Font.PLAIN, 14),
+							scrollPane(id:'parityJScrollPane', constraints: BorderLayout.CENTER){
+								textArea(id:'parityTextArea', font:new Font("Courier New", Font.PLAIN, 14),
 									keyReleased:{
 										if(parityTextArea.getText().length() != lastParityTextAreaLength){
 											formatParityText(4, 8)
@@ -387,6 +384,11 @@ class Main{
 										}
 									}	
 								)
+							}
+							scrollPane(id:'asciiJScrollPane', constraints: BorderLayout.EAST,
+								verticalScrollBarPolicy:JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+								horizontalScrollBarPolicy:JScrollPane.HORIZONTAL_SCROLLBAR_NEVER){
+								textArea(id:'asciiTextArea', font:new Font("Courier New", Font.PLAIN, 14), editable:false)
 							}
 						}						
 					}
@@ -398,10 +400,30 @@ class Main{
                 }
             }
 			
+			parityTextArea.addCaretListener(new CaretListener(){
+				
+				@Override
+				public void caretUpdate(CaretEvent e){
+					// Call the update method here to process a partial section of the data
+					int start = 0
+					int end = swingBuilder.parityTextArea.getText().length()
+					if(e.getDot() < e.getMark()){
+						start = e.getDot()
+						end = e.getMark()
+					}
+					else if(e.getMark() < e.getDot()){
+						start = e.getMark()
+						end = e.getDot()
+					}
+					performBinaryDataOperation(cleanHex(swingBuilder.parityTextArea.getText().substring(start, end)))
+				}
+			})
+			
 			parityJScrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener(){ 
 				@Override
 				public void adjustmentValueChanged(AdjustmentEvent e) {
 				   swingBuilder.parityRowCounterJScrollPane.getVerticalScrollBar().setValue(e.getValue());
+				   swingBuilder.asciiJScrollPane.getVerticalScrollBar().setValue(e.getValue());
 				}
 			})
 							
@@ -520,25 +542,33 @@ class Main{
         }
     }
 	
-	def calculateParity(String text){
+	def performBinaryDataOperation(String text){
 		swingBuilder.edt{						
 			swingBuilder.processProgressBar.indeterminate = true
 			doOutside{
 				try{
-					parity = Calculations.calculateParity(text, Integer.valueOf(swingBuilder.parityLengthTextField.getText()))
+					List<List<Object>> results = Calculations.calculateAllMessageDigests(text)
+					Data.getInstance().getMessageDigestDataList().clear()
+					Data.getInstance().getMessageDigestDataList().addAll(results)
+					
+					updateBinaryCalculationsTable()
 					doLater{
-						swingBuilder.expectedParityLabel.setText(parity)
 						swingBuilder.processProgressBar.indeterminate = false
 					}
 				}
 				catch(Exception ex){
 					doLater{
-						swingBuilder.expectedParityLabel.setText(ex.getMessage())
 						swingBuilder.processProgressBar.indeterminate = false
 					}
 				}				
 			}
 		}
+	}
+	
+	def cleanHex(String text){
+		text = text.replaceAll("[^0-9ABCDEFabcdef]", '')
+		
+		return text
 	}
 	
 	/**
@@ -553,17 +583,17 @@ class Main{
 			StringBuilder sb = new StringBuilder()
 			StringBuilder counter = new StringBuilder()
 			counter.append("00000000 ")
+			StringBuilder ascii = new StringBuilder()
 			
 			doOutside{
-								
-				text = text.replaceAll("[^0-9ABCDEFabcdef]", '')	
+				text = cleanHex(text)				
 					
 				int bits = text.length() * 4
 				int bytes = bits % 8 == 0 ? (bits / 8) : (bits / 8 + 1)
 				String label = "Length: ${Calculations.customFormat('###,###,###', text.length())} hex chars; " +
 							   "${Calculations.customFormat('###,###,###', bits)} bits; " +
 							   "${Calculations.customFormat('###,###,###', bytes)} bytes"
-				calculateParity(text)
+				//performBinaryDataOperation(text)
 				
 				// We want the output to look like this:
 				// 1234 5233 5923 4234 ab32 def9 acd3 92ff [...]
@@ -572,9 +602,24 @@ class Main{
 						// remove trailing space
 						sb.setLength(sb.length() - 1)
 						sb.append("\n")
+						ascii.append("\n")
 						counter.append("\n" + Integer.toString((i / 2).intValue(), 8).padLeft(8, '0') + " ")
 					}
 					
+					List<String> asciiBytes = new ArrayList<String>()
+					
+					for(int j = 0; j < charsPerWord; j += 2){
+						asciiBytes.add(Calculations.safeSubstring(text, i + j, i + j + 2))
+					}
+					
+					for(String asciiByte : asciiBytes){
+						if(asciiByte.length() > 0){
+							String toAppend = String.valueOf((char) (Integer.decode("0x" + asciiByte) & 0xFF))
+							toAppend = toAppend.replaceAll(/[^\p{Print}]/, String.valueOf((char) Integer.decode("0x00")))
+							ascii.append(toAppend)
+						}
+					}
+
 					int end = (i + charsPerWord > text.length()) ? (text.length()) : (i + charsPerWord)
 					sb.append(text.substring(i, end))
 					sb.append(" ")
@@ -585,6 +630,7 @@ class Main{
 					swingBuilder.parityTextArea.setText(sb.toString())
 					swingBuilder.statusLabel.setText(label)
 					swingBuilder.parityRowCounterTextArea.setText(counter.toString())
+					swingBuilder.asciiTextArea.setText(ascii.toString())
 				}
 			}
 			
@@ -647,7 +693,6 @@ class Main{
 					Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + file.getParent());
 				}
 			}
-		
 		})
 		
 		delete.addActionListener(new ActionListener() {
@@ -798,6 +843,18 @@ class Main{
 			}
 		}
     }
+	
+	def updateBinaryCalculationsTable(){
+		swingBuilder.edt{
+			String[] columnNames = new String[2]
+			columnNames[0] = "Message Digest Provider"
+			columnNames[1] = "Value"
+			//
+			swingBuilder.digestProvidersTable.setModel(new BasicTableModel(
+				Data.convertListToArray(Data.getInstance().getMessageDigestDataList()), columnNames))
+			swingBuilder.digestProvidersTable = Calculations.resizeJTable(swingBuilder.digestProvidersTable, swingBuilder.digestProvidersTable.getFont())
+		}
+	}
 	
 	def updateTableData(){
 		swingBuilder.edt{
