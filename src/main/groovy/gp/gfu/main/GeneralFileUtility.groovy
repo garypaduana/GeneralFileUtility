@@ -366,17 +366,17 @@ class Main{
 					}
 					splitPane(title:"Binary Operations", constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:140){
 						scrollPane(constraints:"top"){
-							table(id:'digestProvidersTable', font:new Font("Courier New", Font.PLAIN, 14), autoCreateRowSorter:true, autoResizeMode:1, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
+							table(id:'digestProvidersTable', font:new Font("Deja Vu Sans", Font.PLAIN, 14), autoCreateRowSorter:true, autoResizeMode:1, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
 						}
 						panel(constraints:"bottom"){
 							borderLayout()
 							scrollPane(id:'parityRowCounterJScrollPane', constraints: BorderLayout.WEST, 
 									   verticalScrollBarPolicy:JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 									   horizontalScrollBarPolicy:JScrollPane.HORIZONTAL_SCROLLBAR_NEVER){
-								textArea(id:'parityRowCounterTextArea', font:new Font("Courier New", Font.PLAIN, 14), text:"00000000 ", editable:false)
+								textArea(id:'parityRowCounterTextArea', font:new Font("Consolas", Font.PLAIN, 14), text:"00000000 ", editable:false)
 							}
 							scrollPane(id:'parityJScrollPane', constraints: BorderLayout.CENTER){
-								textArea(id:'parityTextArea', font:new Font("Courier New", Font.PLAIN, 14),
+								textArea(id:'parityTextArea', font:new Font("Consolas", Font.PLAIN, 14),
 									keyReleased:{
 										if(parityTextArea.getText().length() != lastParityTextAreaLength){
 											formatParityText(4, 8)
@@ -388,7 +388,7 @@ class Main{
 							scrollPane(id:'asciiJScrollPane', constraints: BorderLayout.EAST,
 								verticalScrollBarPolicy:JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 								horizontalScrollBarPolicy:JScrollPane.HORIZONTAL_SCROLLBAR_NEVER){
-								textArea(id:'asciiTextArea', font:new Font("Courier New", Font.PLAIN, 14), editable:false)
+								textArea(id:'asciiTextArea', font:new Font("Consolas", Font.PLAIN, 14), editable:false)
 							}
 						}						
 					}
@@ -593,7 +593,6 @@ class Main{
 				String label = "Length: ${Calculations.customFormat('###,###,###', text.length())} hex chars; " +
 							   "${Calculations.customFormat('###,###,###', bits)} bits; " +
 							   "${Calculations.customFormat('###,###,###', bytes)} bytes"
-				//performBinaryDataOperation(text)
 				
 				// We want the output to look like this:
 				// 1234 5233 5923 4234 ab32 def9 acd3 92ff [...]

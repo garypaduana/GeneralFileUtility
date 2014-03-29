@@ -20,6 +20,7 @@ package gp.gfu.util
 import java.awt.Font;
 import java.awt.FontMetrics
 import java.io.File;
+import java.nio.charset.Charset;
 import java.security.MessageDigest
 import java.security.Provider
 import java.security.Security
@@ -190,20 +191,32 @@ class Calculations {
 		  [8, "Octal", 3, 32],
 		  [10, "Decimal (> 8-bit)", 0, 32],
 		  [10, "Decimal (8-bit)", 0, 8], 
-		  [16, "Hexadecimal", 2, 32],
-		  [128, "ASCII", 0, 16]].each {
+		  [16, "Hexadecimal", 2, 32]].each {
 			 List<String> entry = new ArrayList<String>()
 			 entry.add(it[1])
 			 String decoded = decodeToRadix(text, it[0], it[2], it[3])
-			 if(decoded.length() > 64){
-				 decoded = decoded.substring(0, 32) + "..." + 
-				 			decoded.substring(decoded.length() - 32, decoded.length())
-			 }
-			 entry.add(decoded)
+			 entry.add(shorten(decoded, 64))
 			 results.add(entry)
 		 }
+		  
+		  ["UTF-8", "UTF-16", "ISO-8859-1", "UTF-16LE",
+			  "UTF-16BE", "US-ASCII"].each(){
+			  List<String> entry = new ArrayList<String>()
+			  entry.add(it) 
+			  byte[] bytes = decodeMessyHexToByteArray(text)
+			  entry.add(shorten(new String(bytes, Charset.forName(it)), 64))
+			  results.add(entry)
+		  }
 		
 	    return results
+	}
+	
+	public static String shorten(String text, int length){
+		if(text.length() > length){
+			text = text.substring(0, (int)(length / 2)) + " . . . " +
+		    	   text.substring(text.length() - (int)(length / 2), text.length())
+		}
+		return text
 	}
 	
 	public static String decodeToRadix(String text, int radix, int pad, int containerSize){
@@ -216,9 +229,6 @@ class Calculations {
 			
 			if(containerSize == 8){
 				decoded = (byte) (decoded & 0xFF)
-			}
-			if(containerSize == 16){
-				sb.append(String.valueOf((char) decoded).replaceAll(/[^\p{Print}]/, "."))
 			}
 			else{
 				sb.append(Integer.toString(decoded, (radix)).padLeft(pad, '0'))
