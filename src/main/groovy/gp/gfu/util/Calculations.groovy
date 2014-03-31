@@ -230,11 +230,11 @@ class Calculations {
 			if(containerSize == 8){
 				decoded = (byte) (decoded & 0xFF)
 			}
-			else{
-				sb.append(Integer.toString(decoded, (radix)).padLeft(pad, '0'))
-				sb.append(" ")
-			}
+			
+			sb.append(Integer.toString(decoded, (radix)).padLeft(pad, '0'))
+			sb.append(" ")
 		}
+		println "$text, $radix, $pad, $containerSize, ${sb.toString()}"
 		return sb.toString()
 	}
 	
