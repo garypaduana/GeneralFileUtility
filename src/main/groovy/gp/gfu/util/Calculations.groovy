@@ -234,7 +234,7 @@ class Calculations {
 			sb.append(Integer.toString(decoded, (radix)).padLeft(pad, '0'))
 			sb.append(" ")
 		}
-		
+
 		return sb.toString()
 	}
 	
