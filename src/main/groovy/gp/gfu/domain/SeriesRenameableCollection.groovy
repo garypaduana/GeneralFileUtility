@@ -90,10 +90,8 @@ public class SeriesRenameableCollection extends AbstractRenameableCollection{
 	}
 	
 	private String stripExcess(String name){
-		java.util.List<String> excessList = ["hdtv", "x264", "ctu", "divx", "xvid", "dimension",
-											 "orenji", "bluray", "ctrlhd", "lol", "xor", "proper",
-											 "vtv", "2hd", /\[/, /\]/, "ac3", "mp3", "kbps", "ctx",
-											 "by", "fov", "_"]
+		java.util.List<String> excessList = ["hdtv", "x264", "divx", "xvid",											 
+											 /\[/, /\]/, "ac3", "mp3", "kbps"]
 		
 		for(String s : excessList){
 			name = name.toLowerCase().replaceAll(s, " ")
