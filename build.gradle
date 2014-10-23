@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-	groovy 'org.codehaus.groovy:groovy-all:2.1.1'
+	compile "org.codehaus.groovy:groovy-all:2.1.5"
 }
 
 sourceSets{
@@ -20,7 +20,7 @@ sourceSets{
 	}
 }
 
-task uberjar(type: Jar, dependsOn:[':compileJava',':compileGroovy']) {
+task uberjar(type: Jar, dependsOn:[':compileJava', ':compileGroovy']) {
     from files(sourceSets.main.output.classesDir)
     from configurations.runtime.asFileTree.files.collect { zipTree(it) }
 	from files(sourceSets.main.resources)
