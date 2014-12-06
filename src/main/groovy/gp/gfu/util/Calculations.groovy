@@ -37,7 +37,8 @@ class Calculations {
 	
 	public static JTable resizeJTable(JTable jTable, Font font){
 		for(int i = 0; i < jTable.getColumnModel().getColumnCount(); i++){
-			jTable.getColumnModel().getColumn(i).setPreferredWidth(getMaxContentWidth(jTable, i, font))
+			int width = getMaxContentWidth(jTable, i, font)
+			jTable.getColumnModel().getColumn(i).setPreferredWidth(width)
 		}
 		return jTable
 	}
@@ -59,7 +60,7 @@ class Calculations {
 			}
 		}
 		
-		return Math.round(maxWidth * 0.95f) + 20;
+		return maxWidth + 10;
 	}
 	
 	public static String customFormat(String pattern, int value){
@@ -234,8 +235,6 @@ class Calculations {
 		results.addAll(getParityValues(text))
 		results.addAll(getRadixValues(text))
 		results.addAll(getEncodingValues(text))
-		
-		println results.size()
 	    return results
 	}
 	
