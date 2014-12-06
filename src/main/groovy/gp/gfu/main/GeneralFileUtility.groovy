@@ -366,7 +366,7 @@ class Main{
 					}
 					splitPane(title:"Binary Operations", constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:140){
 						scrollPane(constraints:"top"){
-							table(id:'digestProvidersTable', font:new Font("Deja Vu Sans", Font.PLAIN, 14), autoCreateRowSorter:true, autoResizeMode:1, visible:true, model:new MyTableModel(), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
+							table(id:'digestProvidersTable', font:new Font("Deja Vu Sans", Font.PLAIN, 14), autoCreateRowSorter:true, autoResizeMode:1, visible:true, model:new BasicTableModel(["Measurement", "Value"] as String[]), autoscrolls:true, showHorizontalLines:true, showVerticalLines:true)
 						}
 						panel(constraints:"bottom"){
 							borderLayout()
@@ -382,6 +382,7 @@ class Main{
 											formatParityText(4, 8)
 											lastParityTextAreaLength = parityTextArea.getText().length()
 										}
+										performBinaryDataOperation(cleanHex(swingBuilder.parityTextArea.getText()))
 									}	
 								)
 							}
@@ -405,8 +406,13 @@ class Main{
 				@Override
 				public void caretUpdate(CaretEvent e){
 					// Call the update method here to process a partial section of the data
+					/*
+					TODO: There is room for optimization here.  Right now the method below is
+					called too many times each time the cursor moves.
+					*/
 					int start = 0
-					int end = swingBuilder.parityTextArea.getText().length()
+					int length = swingBuilder.parityTextArea.getText().length()
+					int end = length
 					if(e.getDot() < e.getMark()){
 						start = e.getDot()
 						end = e.getMark()
@@ -415,6 +421,7 @@ class Main{
 						start = e.getMark()
 						end = e.getDot()
 					}
+					
 					performBinaryDataOperation(cleanHex(swingBuilder.parityTextArea.getText().substring(start, end)))
 				}
 			})
@@ -538,7 +545,7 @@ class Main{
 			})
 						
             frame.pack()
-            frame.show()
+            frame.setVisible(true)
         }
     }
 	
@@ -547,11 +554,7 @@ class Main{
 			swingBuilder.processProgressBar.indeterminate = true
 			doOutside{
 				try{
-					List<List<Object>> results = Calculations.calculateAllMessageDigests(text)
-					Data.getInstance().getMessageDigestDataList().clear()
-					Data.getInstance().getMessageDigestDataList().addAll(results)
-					
-					updateBinaryCalculationsTable()
+					updateBinaryCalculationsTable(Calculations.calculateAllMessageDigests(text))
 					doLater{
 						swingBuilder.processProgressBar.indeterminate = false
 					}
@@ -843,14 +846,10 @@ class Main{
 		}
     }
 	
-	def updateBinaryCalculationsTable(){
+	def updateBinaryCalculationsTable(List<List<Object>> results){
 		swingBuilder.edt{
-			String[] columnNames = new String[2]
-			columnNames[0] = "Message Digest Provider"
-			columnNames[1] = "Value"
-			//
-			swingBuilder.digestProvidersTable.setModel(new BasicTableModel(
-				Data.convertListToArray(Data.getInstance().getMessageDigestDataList()), columnNames))
+			BasicTableModel btm = (BasicTableModel) swingBuilder.digestProvidersTable.getModel()
+			btm.setData(Data.convertListToArray(results))
 			swingBuilder.digestProvidersTable = Calculations.resizeJTable(swingBuilder.digestProvidersTable, swingBuilder.digestProvidersTable.getFont())
 		}
 	}

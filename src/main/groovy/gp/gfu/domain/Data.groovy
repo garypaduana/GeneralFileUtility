@@ -25,7 +25,6 @@ public class Data{
 	private java.util.List<java.util.List<Object>> fileInfoDataList = new ArrayList<java.util.List<Object>>()
 	private java.util.List<java.util.List<Object>> mergedFileInfoDataList = new ArrayList<java.util.List<Object>>()
 	private java.util.List<java.util.List<Object>> notMergedFileInfoDataList = new ArrayList<java.util.List<Object>>()
-	private java.util.List<java.util.List<Object>> messageDigestDataList = new ArrayList<java.util.List<Object>>()
 	private Map<String, FileInfo> pathToFileInfoMap = new HashMap<String, FileInfo>()
 	private Map<String, List<FileInfo>> uniqueFilesMap = new HashMap<String, List<FileInfo>>()
 	private Set<FileInfo> uniqueFilesSet = new HashSet<FileInfo>()
@@ -83,10 +82,6 @@ public class Data{
 	
 	public java.util.List<java.util.List<Object>> getNotMergedFileInfoDataList(){
 		return notMergedFileInfoDataList
-	}
-	
-	public java.util.List<java.util.List<Object>> getMessageDigestDataList(){
-		return messageDigestDataList
 	}
 	
 	public Map<String, FileInfo> getPathToFileInfoMap(){

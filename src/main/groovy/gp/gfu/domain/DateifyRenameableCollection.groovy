@@ -25,6 +25,7 @@ public class DateifyRenameableCollection extends AbstractRenameableCollection{
 	private String dateFormat
 	private Map<Long, Integer> msMap = new TreeMap<Long, Integer>()
 	
+	
 	public DateifyRenameableCollection(String topDir, String regex, String dateFormat){
 		super(topDir, regex)
 		this.dateFormat = dateFormat
@@ -32,16 +33,22 @@ public class DateifyRenameableCollection extends AbstractRenameableCollection{
 	
 	String applyChange(String name, File file){
 		long time = file.lastModified()
-		if(msMap.containsKey(time)){
-			msMap.put(time, msMap.get(time) + 50)
-		}
-		else{
-			msMap.put(time, 0)
+		def m = file.getName() =~ ".+?(\\d+).+"
+		String dif = ""
+		if(m){
+			dif = m[0][1]
 		}
 		
-		time = time + msMap.get(time)
+//		if(msMap.containsKey(time)){
+//			msMap.put(time, dif)
+//		}
+//		else{
+//			msMap.put(time, 0)
+//		}
+//		
+//		time = time + msMap.get(time)
 		
 		DateFormat df = new SimpleDateFormat(dateFormat);
-		return df.format(new Date(time)) + "." + name.substring(name.lastIndexOf(".") + 1, name.length())
+		return df.format(new Date(time)) + "." + dif + "." + name.substring(name.lastIndexOf(".") + 1, name.length())
 	}
 }

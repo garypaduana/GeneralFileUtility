@@ -148,66 +148,94 @@ class Calculations {
 		}
 	}
 	
+	public static List<List<String>> getDigestValues(String text){
+		List<List<String>> results = new ArrayList<List<String>>()
+		
+		// [provider, string length]
+		[['MD5', 32], ['SHA1', 40], ['SHA-256', 64],
+		 ['SHA-384', 96], ['SHA-512', 128]].each(){
+			try{
+				List<String> entry = new ArrayList<String>()
+				entry.add(it[0])
+				MessageDigest digest = MessageDigest.getInstance(it[0])
+				digest.reset()
+				digest.update(decodeMessyHexToByteArray(text))
+			
+				byte[] sum = digest.digest()
+				BigInteger bigInt = new BigInteger(1, sum)
+				String result = bigInt.toString(16).padLeft(it[1], '0')
+				entry.add(result)
+				results.add(entry)
+			}
+			catch(Exception ex){
+			   println ex.getMessage()
+			}
+		 }
+		 return results
+	}
+	
+	public static List<List<String>> getParityValues(String text){
+		List<List<String>> results = new ArrayList<List<String>>()
+		
+		[4, 8, 16, 32].each {
+			
+			List<String> entry = new ArrayList<String>()
+			entry.add("${it}-bit parity")
+			try{
+				entry.add(Calculations.calculateParity(text, it))
+			}
+			catch (Exception e){
+				entry.add(e.getMessage())
+			}
+			results.add(entry)
+			
+		}
+		
+		return results
+	}
+	
+	public static List<List<String>> getRadixValues(String text){
+		List<List<String>> results = new ArrayList<List<String>>()
+		// [radix, description, leftPadding, container bit size]
+		[[2, "Binary", 8, 32],
+		 [8, "Octal", 3, 32],
+		 [10, "Decimal (> 8-bit)", 0, 32],
+		 [10, "Decimal (8-bit)", 0, 8],
+		 [16, "Hexadecimal", 2, 32]].each {
+			List<String> entry = new ArrayList<String>()
+			entry.add(it[1])
+			String decoded = decodeToRadix(text, it[0], it[2], it[3])
+			entry.add(decoded)
+			results.add(entry)
+		}
+		 
+		return results
+	}
+	
+	public static List<List<String>> getEncodingValues(String text){
+		List<List<String>> results = new ArrayList<List<String>>()
+		
+		["UTF-8", "UTF-16", "ISO-8859-1", "UTF-16LE",
+			"UTF-16BE", "US-ASCII"].each(){
+			List<String> entry = new ArrayList<String>()
+			entry.add(it)
+			byte[] bytes = decodeMessyHexToByteArray(text)
+			entry.add(new String(bytes, Charset.forName(it)))
+			results.add(entry)
+		}
+		
+		return results
+	}
+	
 	public static List<List<String>> calculateAllMessageDigests(String text){
 	    List<List<String>> results = new ArrayList<List<String>>()
 	    
-		// [provider, string length]
-	    [['MD5', 32], ['SHA1', 40], ['SHA-256', 64], 
-		 ['SHA-384', 96], ['SHA-512', 128]].each(){
-	        try{
-	            List<String> entry = new ArrayList<String>()
-	            entry.add(it[0])            
-	            MessageDigest digest = MessageDigest.getInstance(it[0])
-	            digest.reset()
-	            digest.update(decodeMessyHexToByteArray(text))
-	        
-	            byte[] sum = digest.digest()
-	            BigInteger bigInt = new BigInteger(1, sum)
-	            String result = bigInt.toString(16).padLeft(it[1], '0')
-	            entry.add(result)
-	            results.add(entry)
-	        }
-	        catch(Exception ex){        
-	           println ex.getMessage()
-	        }
-		 }
-		 
-		 [4, 8, 16, 32].each {
-			 
-			 List<String> entry = new ArrayList<String>()
-			 entry.add("${it}-bit parity")
-			 try{
-				 entry.add(Calculations.calculateParity(text, it))
-			 }
-			 catch (Exception e){
-				 entry.add(e.getMessage())
-			 }
-			 results.add(entry)
-			 
-		 }
+		results.addAll(getDigestValues(text))
+		results.addAll(getParityValues(text))
+		results.addAll(getRadixValues(text))
+		results.addAll(getEncodingValues(text))
 		
-		 // [radix, description, leftPadding, container bit size]
-		 [[2, "Binary", 8, 32], 
-		  [8, "Octal", 3, 32],
-		  [10, "Decimal (> 8-bit)", 0, 32],
-		  [10, "Decimal (8-bit)", 0, 8], 
-		  [16, "Hexadecimal", 2, 32]].each {
-			 List<String> entry = new ArrayList<String>()
-			 entry.add(it[1])
-			 String decoded = decodeToRadix(text, it[0], it[2], it[3])
-			 entry.add(shorten(decoded, 64))
-			 results.add(entry)
-		 }
-		  
-		  ["UTF-8", "UTF-16", "ISO-8859-1", "UTF-16LE",
-			  "UTF-16BE", "US-ASCII"].each(){
-			  List<String> entry = new ArrayList<String>()
-			  entry.add(it) 
-			  byte[] bytes = decodeMessyHexToByteArray(text)
-			  entry.add(shorten(new String(bytes, Charset.forName(it)), 64))
-			  results.add(entry)
-		  }
-		
+		println results.size()
 	    return results
 	}
 	

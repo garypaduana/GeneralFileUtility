@@ -29,7 +29,13 @@ public class BasicTableModel extends AbstractTableModel {
         super()
     }
 	
+	public BasicTableModel(String[] columnNames){
+		super()
+		this.columnNames = columnNames
+	}
+	
 	public BasicTableModel(Object[][] data, String[] columnNames){
+		super()
         this.columnNames = columnNames
         this.data = data
     }
@@ -66,4 +72,14 @@ public class BasicTableModel extends AbstractTableModel {
     public boolean isCellEditable(int row, int col) {
 		return false
     }
+	
+	public void setData(Object[][] data){
+		this.data = data
+		fireTableStructureChanged()
+		fireTableDataChanged()
+	}
+		
+	public void setColumnNames(String[] columnNames){
+		this.columnNames = columnNames
+	}
 }
