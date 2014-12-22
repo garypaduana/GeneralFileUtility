@@ -76,6 +76,10 @@ class Main{
 	public enum WORK_STATE {CONTINUE, CANCEL}
 	private String parity
 	private int lastParityTextAreaLength
+	
+	private FileInfoManager fileInfoManager
+	private MergeFileInfoManager mergeFileInfoManager
+	private Map<String, FileInfo> pathToFileInfoMap = new HashMap<String, FileInfo>()
 
 	public Main(){
         initializeGUI()
@@ -505,7 +509,7 @@ class Main{
 						if (!swingBuilder.duplicateFileTable.getColumnSelectionAllowed() && swingBuilder.duplicateFileTable.getRowSelectionAllowed()){
 							int[] selectedRows = swingBuilder.duplicateFileTable.getSelectedRows()
 							String hash = swingBuilder.duplicateFileTable.getValueAt(selectedRows[0], 2)							
-							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(Data.getInstance().getUniqueFilesMap().get(hash)), Data.getInstance().getColumnNames(), null))
+							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(hash)), Data.getInstance().getColumnNames(), null))
 							swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 						}
 					}
@@ -526,7 +530,7 @@ class Main{
 							int[] selectedRows = swingBuilder.duplicateFileTable.getSelectedRows()
 							String hash = swingBuilder.duplicateFileTable.getValueAt(selectedRows[0], 2)
 							duplicateFileLastSelectedHash = hash							
-							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(Data.getInstance().getUniqueFilesMap().get(hash)), Data.getInstance().getColumnNames(), null))
+							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(hash)), Data.getInstance().getColumnNames(), null))
 							swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 						}
 					}
@@ -711,7 +715,7 @@ class Main{
 								hash = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex("MD5"))
 								String name = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex("Name"))
 								
-								for(Iterator<FileInfo> it = Data.getInstance().getUniqueFilesMap().get(hash).iterator(); it.hasNext();){
+								for(Iterator<FileInfo> it = fileInfoManager.getUniqueFilesMap().get(hash).iterator(); it.hasNext();){
 									FileInfo next = it.next()
 									if(next.getPath().equals(name)){
 										it.remove()
@@ -720,8 +724,8 @@ class Main{
 							}
 						}
 
-						if(Data.getInstance().getUniqueFilesMap().get(hash).size() == 0){
-							Data.getInstance().getUniqueFilesMap().remove(hash)
+						if(fileInfoManager.getUniqueFilesMap().get(hash).size() == 0){
+							fileInfoManager.getUniqueFilesMap().remove(hash)
 						}
 						
 						updateTableData()
@@ -747,16 +751,22 @@ class Main{
 	}
 	
 	def clearScanAction(){
-		clearTable(swingBuilder.fileTable, Data.getInstance().getFileInfoData(Data.getInstance().getFileInfoDataList()))
+		clearTable(swingBuilder.fileTable, fileInfoManager.getFileInfoData(fileInfoManager.getFileInfoDataList()))
 		clearTable(swingBuilder.duplicateFileTable, Data.getInstance().getEmptyData())
 		clearTable(swingBuilder.duplicateSourcesTable, Data.getInstance().getEmptyData())
 		clearTable(swingBuilder.copiedFileTable, Data.getInstance().getEmptyData())
 		clearTable(swingBuilder.notCopiedFileTable, Data.getInstance().getEmptyData())
-		Data.getInstance().getUniqueFilesMap().clear()
-		Data.getInstance().getUniqueFilesSet().clear()
-		Data.getInstance().getFileInfoDataList().clear()
-		Data.getInstance().getMergedFileInfoDataList().clear()
-		Data.getInstance().getNotMergedFileInfoDataList().clear()
+		
+		if(fileInfoManager != null){
+			fileInfoManager.getUniqueFilesMap().clear()
+			fileInfoManager.getUniqueFilesSet().clear()
+			fileInfoManager.getFileInfoDataList().clear()
+		}
+		
+		if(mergeFileInfoManager != null){
+			mergeFileInfoManager.getMergedFileInfoDataList().clear()
+			mergeFileInfoManager.getNotMergedFileInfoDataList().clear()
+		}
 	}
     
 	def cancelMergeAction(){
@@ -769,11 +779,10 @@ class Main{
 	}
 	
 	def mergeAction(){
-		MergeFileInfoManager fileInfoManager = null
 		java.util.List<String> fileList = new ArrayList<String>()
 		boolean copyOnly = swingBuilder.copyNotMoveCheckBox.selected
-		Data.getInstance().getMergedFileInfoDataList().clear()
-		Data.getInstance().getNotMergedFileInfoDataList().clear()
+		mergeFileInfoManager.getMergedFileInfoDataList().clear()
+		mergeFileInfoManager.getNotMergedFileInfoDataList().clear()
 		
 		swingBuilder.edt{
 			workingStatus()
@@ -786,20 +795,20 @@ class Main{
 			doOutside{
                 fileList.addAll(Calculations.getFileList(swingBuilder.sourceDirTextField.getText()))
 				swingBuilder.cancelScanButton.setEnabled(true)
-				fileInfoManager = new MergeFileInfoManager(fileList, swingBuilder.destDirTextField.getText(), 
+				mergeFileInfoManager = new MergeFileInfoManager(fileList, swingBuilder.destDirTextField.getText(), 
 					swingBuilder.sourceDirTextField.getText(), copyOnly)
 				Data.getInstance().setMergeCanceled(false)
 								
-				FileInfoObserver fileInfoObserver = new FileInfoObserver(fileInfoManager, swingBuilder)
-				fileInfoManager.addObserver(fileInfoObserver)
-				fileInfoManager.processFiles()
+				FileInfoObserver fileInfoObserver = new FileInfoObserver(mergeFileInfoManager, swingBuilder)
+				mergeFileInfoManager.addObserver(fileInfoObserver)
+				mergeFileInfoManager.processFiles(pathToFileInfoMap)
 				
-                Data.getInstance().getMergedFileInfoDataList().addAll(fileInfoManager.getInterimMergedData())
-				Data.getInstance().getNotMergedFileInfoDataList().addAll(fileInfoManager.getInterimNotMergedData())
+                mergeFileInfoManager.getMergedFileInfoDataList().addAll(mergeFileInfoManager.getInterimMergedData())
+				mergeFileInfoManager.getNotMergedFileInfoDataList().addAll(mergeFileInfoManager.getInterimNotMergedData())
 				
 				doLater{
 					finishedWorkStatus()
-					swingBuilder.statusLabel.text = "Recent Merge Analzyed Files: ${Calculations.customFormat('###,###,###', fileInfoManager.getFilesProcessedCount())}  Size: ${Calculations.customFormat('###,###,###,###,###', fileInfoManager.getTotalSize())} bytes"
+					swingBuilder.statusLabel.text = "Recent Merge Analzyed Files: ${Calculations.customFormat('###,###,###', mergeFileInfoManager.getFilesProcessedCount())}  Size: ${Calculations.customFormat('###,###,###,###,###', mergeFileInfoManager.getTotalSize())} bytes"
 					updateMergeTableData()
 					swingBuilder.scanDirectoryButton.setEnabled(true)
 					swingBuilder.clearScanButton.setEnabled(true)
@@ -811,7 +820,6 @@ class Main{
 	}
 	
     def filesToTableAction(){
-		FileInfoManager fileInfoManager = null
         java.util.List<String> fileList = new ArrayList<String>()
 		
 		swingBuilder.edt{
@@ -829,9 +837,9 @@ class Main{
 				
 				FileInfoObserver fileInfoObserver = new FileInfoObserver(fileInfoManager, swingBuilder)
 				fileInfoManager.addObserver(fileInfoObserver)
-				fileInfoManager.processFiles()
+				fileInfoManager.processFiles(pathToFileInfoMap)
 				
-                Data.getInstance().getFileInfoDataList().addAll(fileInfoManager.getInterimData())
+                fileInfoManager.getFileInfoDataList().addAll(fileInfoManager.getInterimData())
 				
 				doLater{
 					finishedWorkStatus()
@@ -856,14 +864,14 @@ class Main{
 	
 	def updateTableData(){
 		swingBuilder.edt{
-			swingBuilder.fileTable.setModel(new MyTableModel(Data.getInstance().getFileInfoData(Data.getInstance().getFileInfoDataList()), Data.getInstance().getColumnNames(), null))
+			swingBuilder.fileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(fileInfoManager.getFileInfoDataList()), Data.getInstance().getColumnNames(), null))
 			swingBuilder.fileTable = Calculations.resizeJTable(swingBuilder.fileTable, swingBuilder.fileTable.getFont())
-			swingBuilder.duplicateFileTable.setModel(new MyTableModel(fileMapInfoToArray(Data.getInstance().getUniqueFilesMap()), Data.getInstance().getColumnNames(), null))
+			swingBuilder.duplicateFileTable.setModel(new MyTableModel(fileMapInfoToArray(fileInfoManager.getUniqueFilesMap()), Data.getInstance().getColumnNames(), null))
 			swingBuilder.duplicateFileTable = Calculations.resizeJTable(swingBuilder.duplicateFileTable, swingBuilder.duplicateFileTable.getFont())
 			
 			if(duplicateFileLastSelectedHash != null && duplicateFileLastSelectedHash.length() > 0 &&
-			   Data.getInstance().getUniqueFilesMap().containsKey(duplicateFileLastSelectedHash)){
-				swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(Data.getInstance().getUniqueFilesMap().get(duplicateFileLastSelectedHash)), Data.getInstance().getColumnNames(), null))
+			   fileInfoManager.getUniqueFilesMap().containsKey(duplicateFileLastSelectedHash)){
+				swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(duplicateFileLastSelectedHash)), Data.getInstance().getColumnNames(), null))
 				swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 			}
 			else{
@@ -874,9 +882,9 @@ class Main{
 	
 	def updateMergeTableData(){
 		swingBuilder.edt{
-			swingBuilder.copiedFileTable.setModel(new MyTableModel(Data.getInstance().getFileInfoData(Data.getInstance().getMergedFileInfoDataList()), Data.getInstance().getColumnNames(), null))
+			swingBuilder.copiedFileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(mergeFileInfoManager.getMergedFileInfoDataList()), Data.getInstance().getColumnNames(), null))
 			swingBuilder.copiedFileTable = Calculations.resizeJTable(swingBuilder.copiedFileTable, swingBuilder.copiedFileTable.getFont())
-			swingBuilder.notCopiedFileTable.setModel(new MyTableModel(Data.getInstance().getFileInfoData(Data.getInstance().getNotMergedFileInfoDataList()), Data.getInstance().getColumnNames(), null))
+			swingBuilder.notCopiedFileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(mergeFileInfoManager.getNotMergedFileInfoDataList()), Data.getInstance().getColumnNames(), null))
 			swingBuilder.notCopiedFileTable = Calculations.resizeJTable(swingBuilder.notCopiedFileTable, swingBuilder.notCopiedFileTable.getFont())
 		}
 	}
@@ -987,5 +995,9 @@ class Main{
 
 	public SwingBuilder getSwingBuilder(){
 		return this.swingBuilder
+	}
+	
+	public Map<String, FileInfo> getPathToFileInfoMap(){
+		return this.pathToFileInfoMap
 	}
 }

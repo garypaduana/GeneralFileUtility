@@ -29,6 +29,8 @@ public class MergeFileInfoManager extends FileInfoManager{
 	private String destinationPath
 	private String sourcePath
 	private boolean copyOnly
+	private java.util.List<java.util.List<Object>> mergedFileInfoDataList = new ArrayList<java.util.List<Object>>()
+	private java.util.List<java.util.List<Object>> notMergedFileInfoDataList = new ArrayList<java.util.List<Object>>()
 	
 	public MergeFileInfoManager(java.util.List<String> fileList, String destinationPath, String sourcePath, boolean copyOnly){
 		super(fileList)
@@ -46,10 +48,9 @@ public class MergeFileInfoManager extends FileInfoManager{
 	}
 	
 	@Override
-	public void processFiles(){
+	public void processFiles(Map<String, FileInfo> pathToFileInfoMap){
 		notifyObservers()
 		for(int i = 0; i < getFileList().size(); i++){
-			println getFileList().get(i)
 			if(Data.getInstance().isMergeCanceled()){
 				break
 			}
@@ -58,12 +59,10 @@ public class MergeFileInfoManager extends FileInfoManager{
 			
 			FileInfo fileInfo = buildFileInfo(entry, i)
 			// true means the file already exists
-			if(addFileInfo(fileInfo, entry)){
-				//println "existed in reference"
+			if(addFileInfo(fileInfo, entry, pathToFileInfoMap)){
 				interimNotMergedData.add(entry)
 			}
 			else{
-				//println "did not exist"
 				// attempt to copy the file, it did not exist already
 				File orig = new File(getFileList().get(i))
 				File dest = new File(destinationPath + "/" + orig.getParent().replace(sourcePath, "") + "/"	+ orig.getName())
@@ -82,9 +81,9 @@ public class MergeFileInfoManager extends FileInfoManager{
 						boolean moved = false;
 						for(int attempt = 0; attempt < 20; attempt++){
 							if(orig.renameTo(dest)){
-								FileInfo temp = Data.getInstance().getPathToFileInfoMap().get(orig.getAbsolutePath())
+								FileInfo temp = pathToFileInfoMap.get(orig.getAbsolutePath())
 								temp.setPath(dest.getAbsolutePath())
-								Data.getInstance().getPathToFileInfoMap().put(dest.getAbsolutePath(), temp)
+								pathToFileInfoMap.put(dest.getAbsolutePath(), temp)
 								
 								interimMergedData.add(entry)
 								moved = true;
@@ -105,7 +104,13 @@ public class MergeFileInfoManager extends FileInfoManager{
 			}
 			interimData.add(entry)
 		}
+	}
 	
+	public java.util.List<java.util.List<Object>> getMergedFileInfoDataList(){
+		return mergedFileInfoDataList
+	}
 	
+	public java.util.List<java.util.List<Object>> getNotMergedFileInfoDataList(){
+		return notMergedFileInfoDataList
 	}
 }

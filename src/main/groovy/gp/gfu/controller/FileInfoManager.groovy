@@ -17,6 +17,10 @@
 
 package gp.gfu.controller
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import gp.gfu.domain.Data;
 import gp.gfu.domain.FileInfo;
 import gp.gfu.util.Calculations;
@@ -31,13 +35,17 @@ public class FileInfoManager extends Observable{
 	private String status = "Initializing..."
 	private long totalSize = 0
 	private long filesProcessedCount = 0
+	private Object[][] fileInfoData
+	private java.util.List<java.util.List<Object>> fileInfoDataList = new ArrayList<java.util.List<Object>>()
+	private Map<String, List<FileInfo>> uniqueFilesMap = new HashMap<String, List<FileInfo>>()
+	private Set<FileInfo> uniqueFilesSet = new HashSet<FileInfo>()
 	
 	public FileInfoManager(List<String> fileList){
 		this.fileList = fileList
 		data = Data.getInstance().getEmptyData()
 	}
 	
-	public void processFiles(){
+	public void processFiles(Map<String, FileInfo> pathToFileInfoMap){
 		notifyObservers()
 		for(int i = 0; i < fileList.size(); i++){
 			if(Data.getInstance().isScanCanceled()){
@@ -46,7 +54,7 @@ public class FileInfoManager extends Observable{
 			java.util.List<String> entry = new ArrayList<String>()
 			
 			FileInfo fileInfo = buildFileInfo(entry, i)
-			addFileInfo(fileInfo, entry)
+			addFileInfo(fileInfo, entry, pathToFileInfoMap)
 			interimData.add(entry)
 		}		
 	}
@@ -64,29 +72,34 @@ public class FileInfoManager extends Observable{
 		return fileInfo
 	}
 	
-	protected boolean addFileInfo(FileInfo fileInfo, java.util.List<String> entry){
-		Data.getInstance().getPathToFileInfoMap().put(fileInfo.getPath(), fileInfo)
+	protected boolean addFileInfo(FileInfo fileInfo, java.util.List<String> entry, 
+		Map<String, FileInfo> pathToFileInfoMap){
 		
-		if(Data.getInstance().getUniqueFilesSet().contains(fileInfo)){
+		pathToFileInfoMap.put(fileInfo.getPath(), fileInfo)
+		
+		if(uniqueFilesSet.contains(fileInfo)){
 			entry.add(fileInfo.getHash())
-			if(Data.getInstance().getUniqueFilesMap().containsKey(fileInfo.getHash())){
-				Data.getInstance().getUniqueFilesMap().get(fileInfo.getHash()).add(fileInfo)
+			
+			if(uniqueFilesMap.containsKey(fileInfo.getHash())){
+				uniqueFilesMap.get(fileInfo.getHash()).add(fileInfo)
 			}
 			else{
-				Data.getInstance().getUniqueFilesMap().put(fileInfo.getHash(), new ArrayList<FileInfo>())
-				Data.getInstance().getUniqueFilesMap().get(fileInfo.getHash()).add(fileInfo)
+				uniqueFilesMap.put(fileInfo.getHash(), new ArrayList<FileInfo>())
+				uniqueFilesMap.get(fileInfo.getHash()).add(fileInfo)
 				
-				for(Iterator<FileInfo> it = Data.getInstance().getUniqueFilesSet().iterator(); it.hasNext();){
+				// TODO: Come back to this and implement this as a HashMap
+				for(Iterator<FileInfo> it = uniqueFilesSet.iterator(); it.hasNext();){
 					FileInfo fi = it.next()
 					if(fi.equals(fileInfo)){
-						Data.getInstance().getUniqueFilesMap().get(fileInfo.getHash()).add(fi)
+						println "called for ${fileInfo.toString()}"
+						uniqueFilesMap.get(fileInfo.getHash()).add(fi)
 					}
 				}
 			}
 			return true
 		}
 		else{
-			Data.getInstance().getUniqueFilesSet().add(fileInfo)
+			uniqueFilesSet.add(fileInfo)
 			entry.add("Not necessary")
 			return false
 		}
@@ -107,6 +120,10 @@ public class FileInfoManager extends Observable{
 		return data
 	}
 	
+	public java.util.List<java.util.List<Object>> getFileInfoDataList(){
+		return fileInfoDataList
+	}
+	
 	public Object[][] getData(java.util.List<java.util.List<Object>> interimData){
 		data = new Object[interimData.size()][3]
 		
@@ -116,6 +133,21 @@ public class FileInfoManager extends Observable{
 			data[i][2] = interimData.get(i).get(2)
 		}
 		return data
+	}
+	
+	public Object[][] getFileInfoData(java.util.List<java.util.List<Object>> fileInfoDataList){
+		fileInfoData = new Object[fileInfoDataList.size()][3]
+		for(int i = 0; i < fileInfoDataList.size(); i++){
+			fileInfoData[i][0] = fileInfoDataList.get(i).get(0)
+			fileInfoData[i][1] = fileInfoDataList.get(i).get(1)
+			fileInfoData[i][2] = fileInfoDataList.get(i).get(2)
+		}
+		
+		return fileInfoData
+	}
+	
+	public void setfileInfoData(Object[][] fileInfoData){
+		this.fileInfoData = fileInfoData
 	}
 	
 	public long getTotalSize(){
@@ -142,5 +174,13 @@ public class FileInfoManager extends Observable{
 	
 	public java.util.List<String> getFileList(){
 		return fileList
+	}
+	
+	public Map<String, List<FileInfo>> getUniqueFilesMap(){
+		return uniqueFilesMap
+	}
+	
+	public Set<FileInfo> getUniqueFilesSet(){
+		return this.uniqueFilesSet
 	}
 }

@@ -17,6 +17,7 @@
 
 package gp.gfu.presentation
 
+import gp.gfu.controller.FileInfoManager
 import gp.gfu.domain.Data;
 
 import java.awt.event.MouseEvent
@@ -24,6 +25,13 @@ import java.awt.event.MouseEvent
 import javax.swing.JTable
 
 public class ToolTipJTable extends JTable{
+	
+	private FileInfoManager fileInfoManager
+	
+	public ToolTipJTable(FileInfoManager fileInfoManager){
+		super()
+		this.fileInfoManager = fileInfoManager
+	}
 	
 	//Implement table cell tool tips.
 	@Override
@@ -35,8 +43,8 @@ public class ToolTipJTable extends JTable{
 
 		String hash = (String) getValueAt(rowIndex, 2)
 
-		if(Data.getInstance().getUniqueFilesMap().containsKey(hash)){
-			return Data.getInstance().getUniqueFilesMap().get(hash).getPath()
+		if(fileInfoManager.getUniqueFilesMap().containsKey(hash)){
+			return fileInfoManager.getUniqueFilesMap().get(hash).getPath()
 		}
 		// Returning null prevents a tool tip from appearing if nothing is found		
 		return null
