@@ -39,16 +39,17 @@ public class FileInfoManager extends Observable{
 	private java.util.List<java.util.List<Object>> fileInfoDataList = new ArrayList<java.util.List<Object>>()
 	private Map<String, List<FileInfo>> uniqueFilesMap = new HashMap<String, List<FileInfo>>()
 	private Set<FileInfo> uniqueFilesSet = new HashSet<FileInfo>()
+	private boolean scanCanceled = false
 	
 	public FileInfoManager(List<String> fileList){
 		this.fileList = fileList
-		data = Data.getInstance().getEmptyData()
+		data = Data.getEmptyData()
 	}
 	
 	public void processFiles(Map<String, FileInfo> pathToFileInfoMap){
 		notifyObservers()
 		for(int i = 0; i < fileList.size(); i++){
-			if(Data.getInstance().isScanCanceled()){
+			if(scanCanceled){
 				break
 			}
 			java.util.List<String> entry = new ArrayList<String>()
@@ -182,5 +183,13 @@ public class FileInfoManager extends Observable{
 	
 	public Set<FileInfo> getUniqueFilesSet(){
 		return this.uniqueFilesSet
+	}
+	
+	public void setScanCanceled(boolean scanCanceled){
+		this.scanCanceled = scanCanceled
+	}
+	
+	public boolean isScanCanceled(){
+		return this.scanCanceled
 	}
 }

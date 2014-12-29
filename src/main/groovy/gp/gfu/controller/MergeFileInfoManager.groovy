@@ -31,6 +31,7 @@ public class MergeFileInfoManager extends FileInfoManager{
 	private boolean copyOnly
 	private java.util.List<java.util.List<Object>> mergedFileInfoDataList = new ArrayList<java.util.List<Object>>()
 	private java.util.List<java.util.List<Object>> notMergedFileInfoDataList = new ArrayList<java.util.List<Object>>()
+	private boolean mergeCanceled = false
 	
 	public MergeFileInfoManager(java.util.List<String> fileList, String destinationPath, String sourcePath, boolean copyOnly){
 		super(fileList)
@@ -51,7 +52,7 @@ public class MergeFileInfoManager extends FileInfoManager{
 	public void processFiles(Map<String, FileInfo> pathToFileInfoMap){
 		notifyObservers()
 		for(int i = 0; i < getFileList().size(); i++){
-			if(Data.getInstance().isMergeCanceled()){
+			if(mergeCanceled){
 				break
 			}
 			
@@ -112,5 +113,13 @@ public class MergeFileInfoManager extends FileInfoManager{
 	
 	public java.util.List<java.util.List<Object>> getNotMergedFileInfoDataList(){
 		return notMergedFileInfoDataList
+	}
+	
+	public void setMergeCanceled(boolean mergeCanceled){
+		this.mergeCanceled = mergeCanceled
+	}
+	
+	public boolean isMergeCanceled(){
+		return this.mergeCanceled
 	}
 }

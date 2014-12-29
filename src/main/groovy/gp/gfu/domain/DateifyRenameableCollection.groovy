@@ -38,16 +38,7 @@ public class DateifyRenameableCollection extends AbstractRenameableCollection{
 		if(m){
 			dif = m[0][1]
 		}
-		
-//		if(msMap.containsKey(time)){
-//			msMap.put(time, dif)
-//		}
-//		else{
-//			msMap.put(time, 0)
-//		}
-//		
-//		time = time + msMap.get(time)
-		
+
 		DateFormat df = new SimpleDateFormat(dateFormat);
 		return df.format(new Date(time)) + "." + dif + "." + name.substring(name.lastIndexOf(".") + 1, name.length())
 	}

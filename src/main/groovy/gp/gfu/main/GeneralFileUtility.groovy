@@ -80,7 +80,9 @@ class Main{
 	private FileInfoManager fileInfoManager
 	private MergeFileInfoManager mergeFileInfoManager
 	private Map<String, FileInfo> pathToFileInfoMap = new HashMap<String, FileInfo>()
-
+	private RenameableCollection renameableCollection
+	public static final String[] COLUMN_NAMES = (String[])(["Name", "Size", "MD5"])
+	
 	public Main(){
         initializeGUI()
     }
@@ -259,7 +261,6 @@ class Main{
 									)
 									button(id:'bulkRenameExecuteButton', text:"Execute", constraints:gbc(gridx:2, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]), minimumSize:[150,20], preferredSize:[150,20],
 											actionPerformed:{
-												RenameableCollection renameableCollection = Data.getInstance().getRenameableCollection()
 												if(renameableCollection == null){
 													JOptionPane.showMessageDialog(null, "Execute preview first!")
 												}
@@ -311,7 +312,6 @@ class Main{
 														renameableCollection.generatePreview()
 														renamePreviewTable.setModel(new MyTableModel(renameableCollection.getData(), renameableCollection.getColumnNames(), renameableCollection))
 														renamePreviewTable = Calculations.resizeJTable(renamePreviewTable, renamePreviewTable.getFont())
-														Data.getInstance().setRenameableCollection(renameableCollection)
 													}
 													catch(Exception ex){
 														JOptionPane.showMessageDialog(null, "Preview Failed: ${ex.getMessage()}")
@@ -359,7 +359,7 @@ class Main{
 									panel(constraints:"Date-ify"){
 										gridBagLayout()
 										label(text:"Date Format:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										textField(id:'dateFormatTextField', text:"yyyy-MM-dd__HH-mm-ss", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
+										textField(id:'dateFormatTextField', text:"yyyyMMdd_HHmmss", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
 									}
 								}
 							}
@@ -530,7 +530,7 @@ class Main{
 							int[] selectedRows = swingBuilder.duplicateFileTable.getSelectedRows()
 							String hash = swingBuilder.duplicateFileTable.getValueAt(selectedRows[0], 2)
 							duplicateFileLastSelectedHash = hash							
-							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(hash)), Data.getInstance().getColumnNames(), null))
+							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(hash)), COLUMN_NAMES, null))
 							swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 						}
 					}
@@ -675,6 +675,7 @@ class Main{
 		JMenuItem delete = new JMenuItem("Delete")
 		JMenuItem open = new JMenuItem("Open")
 		JMenuItem browse = new JMenuItem("Browse")
+		
 		delete.setEnabled(deleteEnabled)
 		
 		popup.add(open)
@@ -742,7 +743,7 @@ class Main{
 	}
 	
 	def cancelScanAction(){
-		Data.getInstance().setScanCanceled(true)
+		fileInfoManager.setScanCanceled(true)
 		swingBuilder.scanDirectoryButton.setEnabled(true)
 		swingBuilder.clearScanButton.setEnabled(true)
 		swingBuilder.cancelScanButton.setEnabled(false)
@@ -752,10 +753,10 @@ class Main{
 	
 	def clearScanAction(){
 		clearTable(swingBuilder.fileTable, fileInfoManager.getFileInfoData(fileInfoManager.getFileInfoDataList()))
-		clearTable(swingBuilder.duplicateFileTable, Data.getInstance().getEmptyData())
-		clearTable(swingBuilder.duplicateSourcesTable, Data.getInstance().getEmptyData())
-		clearTable(swingBuilder.copiedFileTable, Data.getInstance().getEmptyData())
-		clearTable(swingBuilder.notCopiedFileTable, Data.getInstance().getEmptyData())
+		clearTable(swingBuilder.duplicateFileTable, Data.getEmptyData())
+		clearTable(swingBuilder.duplicateSourcesTable, Data.getEmptyData())
+		clearTable(swingBuilder.copiedFileTable, Data.getEmptyData())
+		clearTable(swingBuilder.notCopiedFileTable, Data.getEmptyData())
 		
 		if(fileInfoManager != null){
 			fileInfoManager.getUniqueFilesMap().clear()
@@ -770,7 +771,7 @@ class Main{
 	}
     
 	def cancelMergeAction(){
-		Data.getInstance().setMergeCanceled(true)
+		mergeFileInfoManager.setMergeCanceled(true)
 		swingBuilder.scanDirectoryButton.setEnabled(true)
 		swingBuilder.clearScanButton.setEnabled(true)
 		swingBuilder.cancelScanButton.setEnabled(false)
@@ -797,7 +798,7 @@ class Main{
 				swingBuilder.cancelScanButton.setEnabled(true)
 				mergeFileInfoManager = new MergeFileInfoManager(fileList, swingBuilder.destDirTextField.getText(), 
 					swingBuilder.sourceDirTextField.getText(), copyOnly)
-				Data.getInstance().setMergeCanceled(false)
+				mergeFileInfoManager.setMergeCanceled(false)
 								
 				FileInfoObserver fileInfoObserver = new FileInfoObserver(mergeFileInfoManager, swingBuilder)
 				mergeFileInfoManager.addObserver(fileInfoObserver)
@@ -833,7 +834,7 @@ class Main{
                 fileList.addAll(Calculations.getFileList(swingBuilder.scanDirTextField.getText()))
 				swingBuilder.cancelScanButton.setEnabled(true)
 				fileInfoManager = new FileInfoManager(fileList)
-				Data.getInstance().setScanCanceled(false)
+				fileInfoManager.setScanCanceled(false)
 				
 				FileInfoObserver fileInfoObserver = new FileInfoObserver(fileInfoManager, swingBuilder)
 				fileInfoManager.addObserver(fileInfoObserver)
@@ -864,14 +865,14 @@ class Main{
 	
 	def updateTableData(){
 		swingBuilder.edt{
-			swingBuilder.fileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(fileInfoManager.getFileInfoDataList()), Data.getInstance().getColumnNames(), null))
+			swingBuilder.fileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(fileInfoManager.getFileInfoDataList()), COLUMN_NAMES, null))
 			swingBuilder.fileTable = Calculations.resizeJTable(swingBuilder.fileTable, swingBuilder.fileTable.getFont())
-			swingBuilder.duplicateFileTable.setModel(new MyTableModel(fileMapInfoToArray(fileInfoManager.getUniqueFilesMap()), Data.getInstance().getColumnNames(), null))
+			swingBuilder.duplicateFileTable.setModel(new MyTableModel(fileMapInfoToArray(fileInfoManager.getUniqueFilesMap()), COLUMN_NAMES, null))
 			swingBuilder.duplicateFileTable = Calculations.resizeJTable(swingBuilder.duplicateFileTable, swingBuilder.duplicateFileTable.getFont())
 			
 			if(duplicateFileLastSelectedHash != null && duplicateFileLastSelectedHash.length() > 0 &&
 			   fileInfoManager.getUniqueFilesMap().containsKey(duplicateFileLastSelectedHash)){
-				swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(duplicateFileLastSelectedHash)), Data.getInstance().getColumnNames(), null))
+				swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(duplicateFileLastSelectedHash)), COLUMN_NAMES, null))
 				swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 			}
 			else{
@@ -882,9 +883,9 @@ class Main{
 	
 	def updateMergeTableData(){
 		swingBuilder.edt{
-			swingBuilder.copiedFileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(mergeFileInfoManager.getMergedFileInfoDataList()), Data.getInstance().getColumnNames(), null))
+			swingBuilder.copiedFileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(mergeFileInfoManager.getMergedFileInfoDataList()), COLUMN_NAMES, null))
 			swingBuilder.copiedFileTable = Calculations.resizeJTable(swingBuilder.copiedFileTable, swingBuilder.copiedFileTable.getFont())
-			swingBuilder.notCopiedFileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(mergeFileInfoManager.getNotMergedFileInfoDataList()), Data.getInstance().getColumnNames(), null))
+			swingBuilder.notCopiedFileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(mergeFileInfoManager.getNotMergedFileInfoDataList()), COLUMN_NAMES, null))
 			swingBuilder.notCopiedFileTable = Calculations.resizeJTable(swingBuilder.notCopiedFileTable, swingBuilder.notCopiedFileTable.getFont())
 		}
 	}
@@ -952,14 +953,13 @@ class Main{
     
     def clearTable(JTable table, Object[][] dataModel){
         swingBuilder.edt{
-            String[] columnNames = (String[])([""])
             Object[][] data = new Object[1][1]
             
             data[0][0] = ""
             
             dataModel = data
             swingBuilder.statusLabel.text = ""
-            table.setModel(new MyTableModel(data, columnNames, null))
+            table.setModel(new MyTableModel(data, COLUMN_NAMES, null))
         }
     }
      
@@ -999,5 +999,13 @@ class Main{
 	
 	public Map<String, FileInfo> getPathToFileInfoMap(){
 		return this.pathToFileInfoMap
+	}
+	
+	public void setRenameableCollection(RenameableCollection renameableCollection){
+		this.renameableCollection = renameableCollection
+	}
+	
+	public RenameableCollection getRenameableCollection(){
+		return renameableCollection
 	}
 }

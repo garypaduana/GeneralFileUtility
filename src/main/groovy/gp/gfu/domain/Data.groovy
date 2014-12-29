@@ -21,49 +21,8 @@ import javax.swing.ImageIcon
 
 public class Data{
 	
-	private String[] columnNames = (String[])(["Name", "Size", "MD5"])
-	private RenameableCollection renameableCollection
-	private boolean scanCanceled = false
-	private boolean mergeCanceled = false
 	public static final ImageIcon X_MARK = new ImageIcon(Data.class.getResource("/resources/images/xmark.png"))
 	public static final ImageIcon CHECK_MARK = new ImageIcon(Data.class.getResource("/resources/images/checkmark.png"))
-	
-    private static Data instance = null
-    
-    private Data(){
-        
-    }
-    
-    public static synchronized getInstance(){
-        if(instance == null){
-            instance = new Data()
-        }
-        return instance
-    }
-	
-	public void setScanCanceled(boolean scanCanceled){
-		this.scanCanceled = scanCanceled
-	}
-	
-	public boolean isScanCanceled(){
-		return scanCanceled
-	}
-	
-	public void setMergeCanceled(boolean mergeCanceled){
-		this.mergeCanceled = mergeCanceled
-	}
-	
-	public boolean isMergeCanceled(){
-		return this.mergeCanceled
-	}
-	
-	public void setRenameableCollection(RenameableCollection renameableCollection){
-		this.renameableCollection = renameableCollection
-	}
-	
-	public RenameableCollection getRenameableCollection(){
-		return renameableCollection
-	}
 	
 	public static Object[][] convertListToArray(java.util.List<java.util.List<Object>> myList){
 		Object[][] data = new Object[myList.size()][myList.get(0).size()]
@@ -74,10 +33,6 @@ public class Data{
 		}
 		
 		return data
-	}
-	
-	public String[] getColumnNames(){
-		return columnNames
 	}
 	
 	public static Object[][] getEmptyData(){
