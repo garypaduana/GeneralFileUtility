@@ -17,22 +17,22 @@
 
 package gp.gfu.main
 
-import gp.gfu.domain.TrimmedRenameableCollection.TrimEnd;
-import gp.gfu.controller.FileInfoManager;
-import gp.gfu.controller.MergeFileInfoManager;
-import gp.gfu.domain.Data;
-import gp.gfu.domain.DateifyRenameableCollection;
-import gp.gfu.domain.FileInfo;
-import gp.gfu.domain.InsertRenameableCollection;
-import gp.gfu.domain.RenameableCollection;
-import gp.gfu.domain.ReplaceableRenameableCollection;
-import gp.gfu.domain.SeriesRenameableCollection;
-import gp.gfu.domain.TrimmedRenameableCollection;
+import gp.gfu.domain.TrimmedRenameableCollection.TrimEnd
+import gp.gfu.controller.FileInfoManager
+import gp.gfu.controller.MergeFileInfoManager
+import gp.gfu.domain.Data
+import gp.gfu.domain.DateifyRenameableCollection
+import gp.gfu.domain.FileInfo
+import gp.gfu.domain.InsertRenameableCollection
+import gp.gfu.domain.RenameableCollection
+import gp.gfu.domain.ReplaceableRenameableCollection
+import gp.gfu.domain.SeriesRenameableCollection
+import gp.gfu.domain.TrimmedRenameableCollection
 import gp.gfu.presentation.BasicTableModel
-import gp.gfu.presentation.FileInfoObserver;
-import gp.gfu.presentation.MyTableModel;
-import gp.gfu.presentation.RenameObserver;
-import gp.gfu.util.Calculations;
+import gp.gfu.presentation.FileInfoObserver
+import gp.gfu.presentation.MyTableModel
+import gp.gfu.presentation.RenameObserver
+import gp.gfu.util.Calculations
 import groovy.swing.SwingBuilder
 
 import java.awt.BorderLayout
@@ -81,7 +81,11 @@ class Main{
 	private MergeFileInfoManager mergeFileInfoManager
 	private Map<String, FileInfo> pathToFileInfoMap = new HashMap<String, FileInfo>()
 	private RenameableCollection renameableCollection
-	public static final String[] COLUMN_NAMES = (String[])(["Name", "Size", "MD5"])
+	public static final String NAME = "Name"
+	public static final String DIGEST = "MD5"
+	public static final String SIZE = "Size"
+	
+	public static final String[] COLUMN_NAMES = (String[])([NAME, SIZE, DIGEST])
 	
 	public Main(){
         initializeGUI()
@@ -471,7 +475,7 @@ class Main{
 						
 						if (!swingBuilder.fileTable.getColumnSelectionAllowed() && swingBuilder.fileTable.getRowSelectionAllowed()){
 							int[] selectedRows = swingBuilder.fileTable.getSelectedRows()
-							showFileOptionsPopup((int[])selectedRows, e.getX(), e.getY(), swingBuilder.fileTable, false)
+							showFileOptionsPopup((int[])selectedRows, e.getX(), e.getY(), swingBuilder.fileTable, false, false)
 						}
                     }
                 }
@@ -489,32 +493,11 @@ class Main{
 						
 						if (!swingBuilder.duplicateSourcesTable.getColumnSelectionAllowed() && swingBuilder.duplicateSourcesTable.getRowSelectionAllowed()){
 							int[] selectedRows = swingBuilder.duplicateSourcesTable.getSelectedRows()
-							showFileOptionsPopup((int[])selectedRows, e.getX(), e.getY(), swingBuilder.duplicateSourcesTable, true)
+							showFileOptionsPopup((int[])selectedRows, e.getX(), e.getY(), swingBuilder.duplicateSourcesTable, true, true)
 						}
 					}
 				}
 			})
-			
-			/*
-			duplicateFileTable.addMouseListener(new MouseAdapter(){
-				public void mouseClicked(MouseEvent e){					
-					if(SwingUtilities.isLeftMouseButton(e)){
-						if(swingBuilder.duplicateFileTable.getSelectedRows().size() < 2){
-							Point p = e.getPoint()
-							int rowNumber = swingBuilder.fileTable.rowAtPoint(p)
-							ListSelectionModel model = swingBuilder.duplicateFileTable.getSelectionModel()
-							model.setSelectionInterval(rowNumber, rowNumber)
-						}
-						
-						if (!swingBuilder.duplicateFileTable.getColumnSelectionAllowed() && swingBuilder.duplicateFileTable.getRowSelectionAllowed()){
-							int[] selectedRows = swingBuilder.duplicateFileTable.getSelectedRows()
-							String hash = swingBuilder.duplicateFileTable.getValueAt(selectedRows[0], 2)							
-							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(hash)), Data.getInstance().getColumnNames(), null))
-							swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
-						}
-					}
-				}
-			})*/
 			
 			duplicateFileTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 				public void valueChanged(ListSelectionEvent e) { 
@@ -670,22 +653,26 @@ class Main{
 		popup.show(parent, x, y)
 	}
 	
-	def showFileOptionsPopup(java.util.List<Integer> selectedRows, int x, int y, JTable parent, boolean deleteEnabled){
+	def showFileOptionsPopup(java.util.List<Integer> selectedRows, int x, int y, JTable parent, boolean deleteEnabled, boolean hardLinkEnabled){
 		JPopupMenu popup = new JPopupMenu()
 		JMenuItem delete = new JMenuItem("Delete")
 		JMenuItem open = new JMenuItem("Open")
 		JMenuItem browse = new JMenuItem("Browse")
-		
-		delete.setEnabled(deleteEnabled)
+		JMenuItem hardLink = new JMenuItem("Convert to Hard Link")
 		
 		popup.add(open)
 		popup.add(browse)
-		popup.add(delete)
+		if(deleteEnabled){
+			popup.add(delete)
+		}
+		if(hardLinkEnabled){
+			popup.add(hardLink)
+		}
 		
 		open.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event){
 				for(int i = 0; i < selectedRows.size(); i++){
-					String path = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex("Name"))		
+					String path = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(NAME))		
 					Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + path);
 				}
 			}
@@ -695,7 +682,7 @@ class Main{
 		browse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event){
 				for(int i = 0; i < selectedRows.size(); i++){
-					String path = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex("Name"))
+					String path = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(NAME))
 					File file = new File(path)
 					Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + file.getParent());
 				}
@@ -710,11 +697,11 @@ class Main{
 					if(selection == JOptionPane.YES_OPTION){
 						String hash = ""
 						for(int i = 0; i < selectedRows.size(); i++){
-							String path = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex("Name"))		
+							String path = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(NAME))		
 							File file = new File(path)
 							if(file.delete()){
-								hash = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex("MD5"))
-								String name = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex("Name"))
+								hash = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(DIGEST))
+								String name = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(NAME))
 								
 								for(Iterator<FileInfo> it = fileInfoManager.getUniqueFilesMap().get(hash).iterator(); it.hasNext();){
 									FileInfo next = it.next()
@@ -734,6 +721,59 @@ class Main{
 				}
 				catch(Exception ex){
 					ex.printStackTrace()
+				}
+			}
+		})
+		
+		hardLink.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				for(int i = 0; i < selectedRows.size(); i++){
+					String digest = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(DIGEST))
+					String path = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(NAME))
+					List<FileInfo> duplicates = fileInfoManager.getUniqueFilesMap().get(digest)
+					// Need some other duplicate to obtain the contents of the file
+					FileInfo alternative = null
+					for(FileInfo fi : duplicates){
+						if(!fi.getPath().equals(path)){
+							// Check that it's on the same volume
+							if(!fi.getPath().substring(0, 1).equalsIgnoreCase(path.substring(0, 1))){
+								continue
+							}
+
+							alternative = fi
+							break
+						}
+					}
+					if(alternative == null){
+						setStatus("Unable to create hard link for " + path, 0)
+						break
+					}
+					// Rename existing file
+					File f = new File(path)
+					f.renameTo(new File(path + '.old'))
+					assert !new File(path).exists(), "Failed to rename file"
+					
+					// Create new hard link
+					// FIXME: Handle multiple platforms
+					String command = "cmd /C mklink /H \"" + path + "\" \"" + alternative.getPath() + "\""
+					println command
+					Runtime.getRuntime().exec(command)
+					
+					// Let the file system catch up
+					Thread.sleep(100)
+					
+					// Verify newly created link exists
+					File f2 = new File(path)
+					File old = new File(path + '.old')
+					if(f2.exists()){
+						old.delete()
+					}
+					else{
+						// restore original file if this operation wasn't successful
+						old.renameTo(new File(path))
+					}
+					
+					setStatus("Hard link created for " + path, 0)
 				}
 			}
 		})
@@ -953,21 +993,26 @@ class Main{
     
     def clearTable(JTable table, Object[][] dataModel){
         swingBuilder.edt{
+			String[] columnNames = (String[])([""])
             Object[][] data = new Object[1][1]
             
             data[0][0] = ""
             
             dataModel = data
             swingBuilder.statusLabel.text = ""
-            table.setModel(new MyTableModel(data, COLUMN_NAMES, null))
+            table.setModel(new MyTableModel(data, columnNames, null))
         }
     }
      
-    def workingStatus(){
-        swingBuilder.edt{
-			statusLabel.text = "Gathering file listing, please wait..."
-			swingBuilder.processProgressBar.value = 0
+	def setStatus(String status, int progress){
+		swingBuilder.edt{
+			statusLabel.text = status
+			swingBuilder.processProgressBar.value = progress
 		}
+	}
+	
+    def workingStatus(){
+		setStatus("Gathering file listing, please wait...", 0)
     }
     
     def finishedWorkStatus(){

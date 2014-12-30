@@ -92,7 +92,6 @@ public class FileInfoManager extends Observable{
 				for(Iterator<FileInfo> it = uniqueFilesSet.iterator(); it.hasNext();){
 					FileInfo fi = it.next()
 					if(fi.equals(fileInfo)){
-						println "called for ${fileInfo.toString()}"
 						uniqueFilesMap.get(fileInfo.getHash()).add(fi)
 					}
 				}
