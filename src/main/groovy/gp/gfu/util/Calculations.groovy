@@ -266,31 +266,43 @@ class Calculations {
 	}
 	
 	/**
+	 * A generic method to generate a hex string representation of a message digest.
+	 * 
+	 * @param file - the file to be analyzed.
+	 * @param digest - the digest to generate, e.g. "MD5", "SHA-1"
+	 * @param maxLength - the number of bytes to read from the file. if no bytes are desired,
+	 * 					  you must supply -1 or the first buffered chunk will be read.
+	 * @param paddedLength - the total length of the string representation of the message digest.
+	 * 						 e.g. MD5 = 32, SHA-1 = 40
+	 * @return
+	 */
+	public static String generateDigest(File file, String digest, long maxLength, int paddedLength){
+		MessageDigest md = MessageDigest.getInstance(digest)
+		md.reset()
+		if(file.canRead() ){
+			file.withInputStream(){is->
+				byte[] buffer = new byte[8192]
+				int read = 0
+				int totalRead = 0
+				while((read = is.read(buffer)) > 0 && totalRead <= maxLength){
+					totalRead += read
+					md.update(buffer, 0, read)
+				}
+			}
+		}
+	
+		byte[] digestBytes = md.digest()
+		BigInteger bigInt = new BigInteger(1, digestBytes)
+		return bigInt.toString(16).padLeft(paddedLength, '0')
+	}
+	
+	/**
 	 * Generates an MD5 signature using all bytes in the file.
 	 * @param file
 	 * @return
 	 */
 	public static String generateMD5(File file) {
-		try{
-			MessageDigest digest = MessageDigest.getInstance("MD5")
-			digest.reset()
-			if(file.canRead() ){
-				file.withInputStream(){is->
-					byte[] buffer = new byte[8192]
-					int read = 0
-					while((read = is.read(buffer)) > 0) {
-						 digest.update(buffer, 0, read)
-					}
-				}
-			}
-		
-			byte[] md5sum = digest.digest()
-			BigInteger bigInt = new BigInteger(1, md5sum)
-			return bigInt.toString(16).padLeft(32, '0')
-		}
-		catch(Exception ex){
-			return ex.getMessage()	
-		}
+		return generateDigest(file, "MD5", Long.MAX_VALUE, 32)
 	}
 	
 	/**
@@ -303,25 +315,6 @@ class Calculations {
 	 * @return
 	 */
 	public static String generateShortMD5(File file) {
-		try{
-			MessageDigest digest = MessageDigest.getInstance("MD5")
-			digest.reset()
-			file.withInputStream(){is->
-				byte[] buffer = new byte[8192]
-				int read = 0
-				int totalRead = 0
-				while((read = is.read(buffer)) > 0 && totalRead <= 1048576) {
-					totalRead += read
-					digest.update(buffer, 0, read)
-				}
-			}
-		
-			byte[] md5sum = digest.digest()
-			BigInteger bigInt = new BigInteger(1, md5sum)
-			return bigInt.toString(16).padLeft(32, '0')
-		}
-		catch(Exception ex){
-			return ex.getMessage()
-		}
+		return generateDigest(file, "MD5", 1048576, 32)
 	}
 }

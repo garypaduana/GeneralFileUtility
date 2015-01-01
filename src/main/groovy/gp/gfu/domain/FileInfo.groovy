@@ -79,28 +79,34 @@ public class FileInfo{
 		if(!o instanceof FileInfo){return false}
 		FileInfo oArg = ((FileInfo)o)
 		
-		if(oArg.getSize() == this.size){
-			if(oArg.getFirstMbHash() == null){
-				oArg.setFirstMbHash(Calculations.generateShortMD5(new File(oArg.getPath())))
-			}
-			if(this.firstMbHash == null){
-				setFirstMbHash(Calculations.generateShortMD5(new File(this.path)))
-			}
-
-			if(!this.firstMbHash.equals(oArg.getFirstMbHash())){
-				return false
-			}				
-			else{
-				if(oArg.getHash() == null){
-					oArg.setHash(Calculations.generateMD5(new File(oArg.getPath())))
-				}	
-				if(this.hash == null){
-					this.hash = Calculations.generateMD5(new File(this.path))
+		try{
+			if(oArg.getSize() == this.size){
+				if(oArg.getFirstMbHash() == null){
+					oArg.setFirstMbHash(Calculations.generateShortMD5(new File(oArg.getPath())))
 				}
-				if(oArg.getHash().equals(this.hash)){
-					return true
+				if(this.firstMbHash == null){
+					setFirstMbHash(Calculations.generateShortMD5(new File(this.path)))
+				}
+	
+				if(!this.firstMbHash.equals(oArg.getFirstMbHash())){
+					return false
+				}				
+				else{
+					if(oArg.getHash() == null){
+						oArg.setHash(Calculations.generateMD5(new File(oArg.getPath())))
+					}	
+					if(this.hash == null){
+						this.hash = Calculations.generateMD5(new File(this.path))
+					}
+					if(oArg.getHash().equals(this.hash)){
+						return true
+					}
 				}
 			}
+		}
+		catch(Exception ex){
+			ex.printStackTrace()
+			return false
 		}
 		return false		
 	}
