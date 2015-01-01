@@ -513,7 +513,7 @@ class Main{
 							int[] selectedRows = swingBuilder.duplicateFileTable.getSelectedRows()
 							String hash = swingBuilder.duplicateFileTable.getValueAt(selectedRows[0], 2)
 							duplicateFileLastSelectedHash = hash							
-							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(hash)), COLUMN_NAMES, null))
+							swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueDigestMap().get(hash)), COLUMN_NAMES, null))
 							swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 						}
 					}
@@ -703,7 +703,7 @@ class Main{
 								hash = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(DIGEST))
 								String name = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(NAME))
 								
-								for(Iterator<FileInfo> it = fileInfoManager.getUniqueFilesMap().get(hash).iterator(); it.hasNext();){
+								for(Iterator<FileInfo> it = fileInfoManager.getUniqueDigestMap().get(hash).iterator(); it.hasNext();){
 									FileInfo next = it.next()
 									if(next.getPath().equals(name)){
 										it.remove()
@@ -712,8 +712,8 @@ class Main{
 							}
 						}
 
-						if(fileInfoManager.getUniqueFilesMap().get(hash).size() == 0){
-							fileInfoManager.getUniqueFilesMap().remove(hash)
+						if(fileInfoManager.getUniqueDigestMap().get(hash).size() == 0){
+							fileInfoManager.getUniqueDigestMap().remove(hash)
 						}
 						
 						updateTableData()
@@ -730,7 +730,7 @@ class Main{
 				for(int i = 0; i < selectedRows.size(); i++){
 					String digest = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(DIGEST))
 					String path = parent.getValueAt(selectedRows.get(i), parent.getColumnModel().getColumnIndex(NAME))
-					List<FileInfo> duplicates = fileInfoManager.getUniqueFilesMap().get(digest)
+					List<FileInfo> duplicates = fileInfoManager.getUniqueDigestMap().get(digest)
 					// Need some other duplicate to obtain the contents of the file
 					FileInfo alternative = null
 					for(FileInfo fi : duplicates){
@@ -799,8 +799,8 @@ class Main{
 		clearTable(swingBuilder.notCopiedFileTable, Data.getEmptyData())
 		
 		if(fileInfoManager != null){
-			fileInfoManager.getUniqueFilesMap().clear()
-			fileInfoManager.getUniqueFilesSet().clear()
+			fileInfoManager.getUniqueDigestMap().clear()
+			fileInfoManager.getUniqueFileInfoMap().clear()
 			fileInfoManager.getFileInfoDataList().clear()
 		}
 		
@@ -907,12 +907,12 @@ class Main{
 		swingBuilder.edt{
 			swingBuilder.fileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(fileInfoManager.getFileInfoDataList()), COLUMN_NAMES, null))
 			swingBuilder.fileTable = Calculations.resizeJTable(swingBuilder.fileTable, swingBuilder.fileTable.getFont())
-			swingBuilder.duplicateFileTable.setModel(new MyTableModel(fileMapInfoToArray(fileInfoManager.getUniqueFilesMap()), COLUMN_NAMES, null))
+			swingBuilder.duplicateFileTable.setModel(new MyTableModel(fileMapInfoToArray(fileInfoManager.getUniqueDigestMap()), COLUMN_NAMES, null))
 			swingBuilder.duplicateFileTable = Calculations.resizeJTable(swingBuilder.duplicateFileTable, swingBuilder.duplicateFileTable.getFont())
 			
 			if(duplicateFileLastSelectedHash != null && duplicateFileLastSelectedHash.length() > 0 &&
-			   fileInfoManager.getUniqueFilesMap().containsKey(duplicateFileLastSelectedHash)){
-				swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueFilesMap().get(duplicateFileLastSelectedHash)), COLUMN_NAMES, null))
+			   fileInfoManager.getUniqueDigestMap().containsKey(duplicateFileLastSelectedHash)){
+				swingBuilder.duplicateSourcesTable.setModel(new MyTableModel(fileInfoToArray(fileInfoManager.getUniqueDigestMap().get(duplicateFileLastSelectedHash)), COLUMN_NAMES, null))
 				swingBuilder.duplicateSourcesTable = Calculations.resizeJTable(swingBuilder.duplicateSourcesTable, swingBuilder.duplicateSourcesTable.getFont())
 			}
 			else{

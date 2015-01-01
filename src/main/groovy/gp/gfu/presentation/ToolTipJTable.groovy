@@ -43,8 +43,8 @@ public class ToolTipJTable extends JTable{
 
 		String hash = (String) getValueAt(rowIndex, 2)
 
-		if(fileInfoManager.getUniqueFilesMap().containsKey(hash)){
-			return fileInfoManager.getUniqueFilesMap().get(hash).getPath()
+		if(fileInfoManager.getUniqueDigestMap().containsKey(hash)){
+			return fileInfoManager.getUniqueDigestMap().get(hash).getPath()
 		}
 		// Returning null prevents a tool tip from appearing if nothing is found		
 		return null

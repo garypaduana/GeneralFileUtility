@@ -271,21 +271,26 @@ class Calculations {
 	 * @return
 	 */
 	public static String generateMD5(File file) {
-		MessageDigest digest = MessageDigest.getInstance("MD5")
-		digest.reset()
-		if(file.canRead() ){
-			file.withInputStream(){is->
-				byte[] buffer = new byte[8192]
-				int read = 0
-				while((read = is.read(buffer)) > 0) {
-					 digest.update(buffer, 0, read)
+		try{
+			MessageDigest digest = MessageDigest.getInstance("MD5")
+			digest.reset()
+			if(file.canRead() ){
+				file.withInputStream(){is->
+					byte[] buffer = new byte[8192]
+					int read = 0
+					while((read = is.read(buffer)) > 0) {
+						 digest.update(buffer, 0, read)
+					}
 				}
 			}
+		
+			byte[] md5sum = digest.digest()
+			BigInteger bigInt = new BigInteger(1, md5sum)
+			return bigInt.toString(16).padLeft(32, '0')
 		}
-	
-		byte[] md5sum = digest.digest()
-		BigInteger bigInt = new BigInteger(1, md5sum)
-		return bigInt.toString(16).padLeft(32, '0')
+		catch(Exception ex){
+			return ex.getMessage()	
+		}
 	}
 	
 	/**
@@ -298,20 +303,25 @@ class Calculations {
 	 * @return
 	 */
 	public static String generateShortMD5(File file) {
-		MessageDigest digest = MessageDigest.getInstance("MD5")
-		digest.reset()
-		file.withInputStream(){is->
-			byte[] buffer = new byte[8192]
-			int read = 0
-			int totalRead = 0
-			while((read = is.read(buffer)) > 0 && totalRead <= 1048576) {
-				totalRead += read
-				digest.update(buffer, 0, read)
+		try{
+			MessageDigest digest = MessageDigest.getInstance("MD5")
+			digest.reset()
+			file.withInputStream(){is->
+				byte[] buffer = new byte[8192]
+				int read = 0
+				int totalRead = 0
+				while((read = is.read(buffer)) > 0 && totalRead <= 1048576) {
+					totalRead += read
+					digest.update(buffer, 0, read)
+				}
 			}
+		
+			byte[] md5sum = digest.digest()
+			BigInteger bigInt = new BigInteger(1, md5sum)
+			return bigInt.toString(16).padLeft(32, '0')
 		}
-	
-		byte[] md5sum = digest.digest()
-		BigInteger bigInt = new BigInteger(1, md5sum)
-		return bigInt.toString(16).padLeft(32, '0')
+		catch(Exception ex){
+			return ex.getMessage()
+		}
 	}
 }

@@ -37,8 +37,8 @@ public class FileInfoManager extends Observable{
 	private long filesProcessedCount = 0
 	private Object[][] fileInfoData
 	private java.util.List<java.util.List<Object>> fileInfoDataList = new ArrayList<java.util.List<Object>>()
-	private Map<String, List<FileInfo>> uniqueFilesMap = new HashMap<String, List<FileInfo>>()
-	private Set<FileInfo> uniqueFilesSet = new HashSet<FileInfo>()
+	private Map<String, List<FileInfo>> uniqueDigestMap = new HashMap<String, List<FileInfo>>()
+	private Map<FileInfo, FileInfo> uniqueFileInfoMap = new HashMap<FileInfo, FileInfo>()
 	private boolean scanCanceled = false
 	
 	public FileInfoManager(List<String> fileList){
@@ -62,11 +62,14 @@ public class FileInfoManager extends Observable{
 	
 	protected FileInfo buildFileInfo(java.util.List<String> entry, int i){
 		entry.add(fileList.get(i))
-		Double size = new File(fileList.get(i)).size() / 1D
+		File f = new File(fileList.get(i))
+		Double size = f.size() / 1D
 		entry.add(size)
 		totalSize += size
 		percentComplete = (int)(((i + 1) / fileList.size()) * 100)
-		status = "Processing: ${i+1} / ${fileList.size()} Total Progress: ${percentComplete}% Current File: ${new File(fileList.get(i)).name} (${Calculations.customFormat('###,###,###,###,###', size)} bytes)"
+		status = "Processing: ${i+1} / ${fileList.size()} Total Progress: ${percentComplete}% " +
+				 "Current File: ${new File(fileList.get(i)).name} " +
+				 "(${Calculations.customFormat('###,###,###,###,###', size)} bytes)"
 		notifyObservers()
 		FileInfo fileInfo = new FileInfo(fileList.get(i), new File(fileList.get(i)).getName(), size)
 		++filesProcessedCount
@@ -78,28 +81,26 @@ public class FileInfoManager extends Observable{
 		
 		pathToFileInfoMap.put(fileInfo.getPath(), fileInfo)
 		
-		if(uniqueFilesSet.contains(fileInfo)){
+		if(uniqueFileInfoMap.containsKey(fileInfo)){
 			entry.add(fileInfo.getHash())
 			
-			if(uniqueFilesMap.containsKey(fileInfo.getHash())){
-				uniqueFilesMap.get(fileInfo.getHash()).add(fileInfo)
+			if(uniqueDigestMap.containsKey(fileInfo.getHash())){
+				uniqueDigestMap.get(fileInfo.getHash()).add(fileInfo)
 			}
 			else{
-				uniqueFilesMap.put(fileInfo.getHash(), new ArrayList<FileInfo>())
-				uniqueFilesMap.get(fileInfo.getHash()).add(fileInfo)
+				uniqueDigestMap.put(fileInfo.getHash(), new ArrayList<FileInfo>())
+				uniqueDigestMap.get(fileInfo.getHash()).add(fileInfo)
 				
-				// TODO: Come back to this and implement this as a HashMap
-				for(Iterator<FileInfo> it = uniqueFilesSet.iterator(); it.hasNext();){
-					FileInfo fi = it.next()
-					if(fi.equals(fileInfo)){
-						uniqueFilesMap.get(fileInfo.getHash()).add(fi)
-					}
-				}
+				// At this point there is another file out there somewhere that needs
+				// to be identified because it's the corresponding pair.  Right now there
+				// are just two files that have the same digest, this one, and one 
+				// other that was previously processed.
+				uniqueDigestMap.get(fileInfo.getHash()).add(uniqueFileInfoMap.get(fileInfo))
 			}
 			return true
 		}
 		else{
-			uniqueFilesSet.add(fileInfo)
+			uniqueFileInfoMap.put(fileInfo, fileInfo)
 			entry.add("Not necessary")
 			return false
 		}
@@ -176,12 +177,12 @@ public class FileInfoManager extends Observable{
 		return fileList
 	}
 	
-	public Map<String, List<FileInfo>> getUniqueFilesMap(){
-		return uniqueFilesMap
+	public Map<String, List<FileInfo>> getUniqueDigestMap(){
+		return uniqueDigestMap
 	}
 	
-	public Set<FileInfo> getUniqueFilesSet(){
-		return this.uniqueFilesSet
+	public Map<FileInfo, FileInfo> getUniqueFileInfoMap(){
+		return this.uniqueFileInfoMap
 	}
 	
 	public void setScanCanceled(boolean scanCanceled){
