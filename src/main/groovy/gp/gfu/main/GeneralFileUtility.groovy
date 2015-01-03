@@ -278,7 +278,6 @@ class Main{
 										actionPerformed:{
 											doOutside{
 												RenameObserver renameObserver = new RenameObserver(swingBuilder)
-												RenameableCollection renameableCollection = null
 												
 												if(editorComboBox.getSelectedItem().equals("Trim")){
 													TrimmedRenameableCollection.TrimEnd trimEnd
