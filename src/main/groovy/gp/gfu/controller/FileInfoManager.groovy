@@ -137,14 +137,19 @@ public class FileInfoManager extends Observable{
 	}
 	
 	public Object[][] getFileInfoData(java.util.List<java.util.List<Object>> fileInfoDataList){
-		fileInfoData = new Object[fileInfoDataList.size()][3]
+		fileInfoData = convertToMatrix(fileInfoDataList)		
+		return fileInfoData
+	}
+	
+	public static Object[][] convertToMatrix(java.util.List<java.util.List<Object>> fileInfoDataList){
+		Object[][] fileInfoMatrix = new Object[fileInfoDataList.size()][3]
 		for(int i = 0; i < fileInfoDataList.size(); i++){
-			fileInfoData[i][0] = fileInfoDataList.get(i).get(0)
-			fileInfoData[i][1] = fileInfoDataList.get(i).get(1)
-			fileInfoData[i][2] = fileInfoDataList.get(i).get(2)
+			fileInfoMatrix[i][0] = fileInfoDataList.get(i).get(0)
+			fileInfoMatrix[i][1] = fileInfoDataList.get(i).get(1)
+			fileInfoMatrix[i][2] = fileInfoDataList.get(i).get(2)
 		}
 		
-		return fileInfoData
+		return fileInfoMatrix
 	}
 	
 	public void setfileInfoData(Object[][] fileInfoData){

@@ -821,8 +821,10 @@ class Main{
 	def mergeAction(){
 		java.util.List<String> fileList = new ArrayList<String>()
 		boolean copyOnly = swingBuilder.copyNotMoveCheckBox.selected
-		mergeFileInfoManager.getMergedFileInfoDataList().clear()
-		mergeFileInfoManager.getNotMergedFileInfoDataList().clear()
+		if(mergeFileInfoManager != null){
+			mergeFileInfoManager.getMergedFileInfoDataList().clear()
+			mergeFileInfoManager.getNotMergedFileInfoDataList().clear()
+		}
 		
 		swingBuilder.edt{
 			workingStatus()
@@ -922,9 +924,9 @@ class Main{
 	
 	def updateMergeTableData(){
 		swingBuilder.edt{
-			swingBuilder.copiedFileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(mergeFileInfoManager.getMergedFileInfoDataList()), COLUMN_NAMES, null))
+			swingBuilder.copiedFileTable.setModel(new MyTableModel(FileInfoManager.convertToMatrix(mergeFileInfoManager.getMergedFileInfoDataList()), COLUMN_NAMES, null))
 			swingBuilder.copiedFileTable = Calculations.resizeJTable(swingBuilder.copiedFileTable, swingBuilder.copiedFileTable.getFont())
-			swingBuilder.notCopiedFileTable.setModel(new MyTableModel(fileInfoManager.getFileInfoData(mergeFileInfoManager.getNotMergedFileInfoDataList()), COLUMN_NAMES, null))
+			swingBuilder.notCopiedFileTable.setModel(new MyTableModel(FileInfoManager.convertToMatrix(mergeFileInfoManager.getNotMergedFileInfoDataList()), COLUMN_NAMES, null))
 			swingBuilder.notCopiedFileTable = Calculations.resizeJTable(swingBuilder.notCopiedFileTable, swingBuilder.notCopiedFileTable.getFont())
 		}
 	}
