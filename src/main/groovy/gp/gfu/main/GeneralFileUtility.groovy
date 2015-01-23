@@ -85,6 +85,8 @@ class Main{
 	public static final String DIGEST = "MD5"
 	public static final String SIZE = "Size"
 	
+	public static final Insets INSETS = [3,3,3,3]
+	
 	public static final String[] COLUMN_NAMES = (String[])([NAME, SIZE, DIGEST])
 	
 	public Main(){
@@ -133,18 +135,18 @@ class Main{
 							panel(constraints:BorderLayout.CENTER){
 								gridBagLayout()
 								
-								label(text:"Root Directory:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3,]))
-								textField(id:'scanDirTextField', text:"${System.getProperty('user.dir')}", minimumSize:[300,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-								button(id:'ellipsisButton', text:'Choose Directory...', preferredSize: [150,20], constraints:gbc(gridx:2, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+								label(text:"Root Directory:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								textField(id:'scanDirTextField', text:"${System.getProperty('user.dir')}", minimumSize:[300,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								button(id:'ellipsisButton', text:'Choose Directory...', preferredSize: [150,20], constraints:gbc(gridx:2, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 									actionPerformed:{launchFileChooserAction(scanDirTextField)}
 								)
-								button(id:'scanDirectoryButton', text:"Scan Directory", preferredSize: [150,20], constraints:gbc(gridx:3, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+								button(id:'scanDirectoryButton', text:"Scan Directory", preferredSize: [150,20], constraints:gbc(gridx:3, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 									actionPerformed: {filesToTableAction()}
 								)
-								button(id:'clearScanButton', text:"Clear", preferredSize: [150,20], constraints:gbc(gridx:2, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+								button(id:'clearScanButton', text:"Clear", preferredSize: [150,20], constraints:gbc(gridx:2, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 									actionPerformed: {clearScanAction()}
 								)
-								button(id:'cancelScanButton', text:"Cancel", enabled:false, preferredSize: [150,20], constraints:gbc(gridx:3, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+								button(id:'cancelScanButton', text:"Cancel", enabled:false, preferredSize: [150,20], constraints:gbc(gridx:3, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 									actionPerformed: {cancelScanAction()}
 								)
 							}
@@ -187,23 +189,23 @@ class Main{
 					splitPane(title:'Smart Merge', constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:115, resizeWeight: 0.0){
 						panel(constraints:BorderLayout.CENTER){
 							gridBagLayout()
-							label(text:"Source Directory", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3,]))
-							textField(id:'sourceDirTextField', text:"", minimumSize:[300,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-							button(id:'ellipsisMergeSourceButton', text:'Choose Directory...', preferredSize: [150,20], constraints:gbc(gridx:2, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+							label(text:"Source Directory", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+							textField(id:'sourceDirTextField', text:"", minimumSize:[300,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+							button(id:'ellipsisMergeSourceButton', text:'Choose Directory...', preferredSize: [150,20], constraints:gbc(gridx:2, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 									actionPerformed:{
 										launchFileChooserAction(sourceDirTextField)
 									}
 							)
 							
-							label(text:"Destination Directory", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3,]))
-							textField(id:'destDirTextField', text:"", minimumSize:[300,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-							button(id:'ellipsisMergeDestButton', text:'Choose Directory...', preferredSize: [150,20], constraints:gbc(gridx:2, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+							label(text:"Destination Directory", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+							textField(id:'destDirTextField', text:"", minimumSize:[300,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+							button(id:'ellipsisMergeDestButton', text:'Choose Directory...', preferredSize: [150,20], constraints:gbc(gridx:2, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 								actionPerformed:{
 									launchFileChooserAction(destDirTextField)
 								}
 							)
 							
-							panel(constraints:gbc(gridx:0, gridy:2, gridwidth:3, fill:GridBagConstraints.NONE, insets:[3,3,3,3])){
+							panel(constraints:gbc(gridx:0, gridy:2, gridwidth:3, fill:GridBagConstraints.NONE, insets:INSETS)){
 								flowLayout()
 								
 								checkBox(id:'copyNotMoveCheckBox', selected:true, text:'Copy (Don\'t Move)')
@@ -250,20 +252,20 @@ class Main{
 							
 								panel(constraints:"left"){
 									gridBagLayout()
-									label(text:"Root Directory:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-									textField(id:'renameDirTextField', text:"${System.getProperty('user.dir')}", minimumSize:[200,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-									button(id:'ellipsisButtonRename', text:'Choose Directory...', minimumSize:[150,20], preferredSize: [150,20], constraints:gbc(gridx:2, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+									label(text:"Root Directory:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+									textField(id:'renameDirTextField', text:"${System.getProperty('user.dir')}", minimumSize:[200,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+									button(id:'ellipsisButtonRename', text:'Choose Directory...', minimumSize:[150,20], preferredSize: [150,20], constraints:gbc(gridx:2, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 										actionPerformed:{launchFileChooserAction(renameDirTextField)}
 									)
-									label(text:"Regex Match:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-									textField(id:'regexMatchTextField', text:".+", minimumSize:[200,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-									label(text:"Editor:", constraints:gbc(gridx:0, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-									comboBox(id:'editorComboBox', minimumSize:[200,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]), model:new DefaultComboBoxModel((Object[]) ["Trim", "Replace", "Date-ify", "Insert", "Series Editor"]),
+									label(text:"Regex Match:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+									textField(id:'regexMatchTextField', text:".+", minimumSize:[200,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+									label(text:"Editor:", constraints:gbc(gridx:0, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+									comboBox(id:'editorComboBox', minimumSize:[200,20], preferredSize:[300,20], constraints:gbc(gridx:1, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), model:new DefaultComboBoxModel((Object[]) ["Trim", "Replace", "Date-ify", "Insert", "Series Editor"]),
 										actionPerformed:{
 											editorCards.layout.show(editorCards, editorComboBox.getSelectedItem().toString())
 										}
 									)
-									button(id:'bulkRenameExecuteButton', text:"Execute", constraints:gbc(gridx:2, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]), minimumSize:[150,20], preferredSize:[150,20],
+									button(id:'bulkRenameExecuteButton', text:"Execute", constraints:gbc(gridx:2, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[150,20], preferredSize:[150,20],
 											actionPerformed:{
 												if(renameableCollection == null){
 													JOptionPane.showMessageDialog(null, "Execute preview first!")
@@ -274,7 +276,7 @@ class Main{
 											}
 										)
 
-									button(id:'bulkRenamePreviewButton', text:"Preview", constraints:gbc(gridx:2, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]), minimumSize:[150,20], preferredSize:[150,20],
+									button(id:'bulkRenamePreviewButton', text:"Preview", constraints:gbc(gridx:2, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[150,20], preferredSize:[150,20],
 										actionPerformed:{
 											doOutside{
 												RenameObserver renameObserver = new RenameObserver(swingBuilder)
@@ -329,40 +331,40 @@ class Main{
 									cardLayout()
 									panel(constraints:"Trim"){
 										gridBagLayout()
-										label(text:"Trim characters from one side of the filename", constraints:gbc(gridx:0,gridy:0, gridwidth:2, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										radioButton(id:'leftRadioButton', text:"Left", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+										label(text:"Trim characters from one side of the filename", constraints:gbc(gridx:0,gridy:0, gridwidth:2, fill:GridBagConstraints.NONE, insets:INSETS))
+										radioButton(id:'leftRadioButton', text:"Left", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 											actionPerformed:{
 												if(leftRadioButton.isSelected()) {rightRadioButton.setSelected(false)}
 												else{rightRadioButton.setSelected(true)}
 											}
 										)
-										radioButton(id:'rightRadioButton', text:"Right", constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]),
+										radioButton(id:'rightRadioButton', text:"Right", constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS),
 											actionPerformed:{
 												if(rightRadioButton.isSelected()){leftRadioButton.setSelected(false)}
 												else{leftRadioButton.setSelected(true)}
 											}
 										)
-										label(text:"Number of characters to trim:", constraints:gbc(gridx:0, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										textField(id:'charsToTrimTextField', constraints:gbc(gridx:1, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]), minimumSize:[200,20], preferredSize:[200,20])
+										label(text:"Number of characters to trim:", constraints:gbc(gridx:0, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										textField(id:'charsToTrimTextField', constraints:gbc(gridx:1, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[200,20], preferredSize:[200,20])
 									}
 									panel(constraints:"Replace"){
 										gridBagLayout()
-										label(text:"Replace character(s):", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										textField(id:'replaceCharsTextField', minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										label(text:"With:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										textField(id:'substituteCharsTextField', minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
+										label(text:"Replace character(s):", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										textField(id:'replaceCharsTextField', minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										label(text:"With:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										textField(id:'substituteCharsTextField', minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
 									}
 									panel(constraints:"Series Editor"){
 										gridBagLayout()
-										label(text:"Series Name:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										textField(id:'seriesNameTextField', minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										label(text:"Output Format:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										textField(id:'outputSpecTextField', text:"%sn - %se - %en - %res.%ext", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
+										label(text:"Series Name:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										textField(id:'seriesNameTextField', minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										label(text:"Output Format:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										textField(id:'outputSpecTextField', text:"%sn - %se - %en - %res.%ext", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
 									}
 									panel(constraints:"Date-ify"){
 										gridBagLayout()
-										label(text:"Date Format:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
-										textField(id:'dateFormatTextField', text:"yyyyMMdd_HHmmss", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:[3,3,3,3]))
+										label(text:"Date Format:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										textField(id:'dateFormatTextField', text:"yyyyMMdd_HHmmss", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
 									}
 								}
 							}
