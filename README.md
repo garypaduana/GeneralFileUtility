@@ -21,7 +21,7 @@ A specified directory is processed and all files at and beneath this directory a
 
 **Duplicate Files**
 
-The duplicate files tab shows the results of the most recent directory scan action.  The top table shows a unique collection of message digests with one file per digest chosen at random to give a sense of what the file is.  (It's not "random", but there is no known preference or natural ordering of the duplicate files, so one is chosen arbitrarily.)
+The duplicate files tab shows the results of the directory scans since the last `Clear`.  The top table shows a unique collection of message digests with one file per digest chosen at random to give a sense of what the file is.  (It's not "random", but there is no known preference or natural ordering of the duplicate files, so one is chosen arbitrarily.)
 
 When selecting a unique message digest, all file instances will appear in the table below.  This identifies each file that has a duplicate somewhere within the current search scope.  From here, a right click will allow `Open`, `Browse`, `Delete`, and `Convert to Hard Link` functionality.  The hard link functionality currently only works on Windows and will generate this command:  `cmd /C mklink /H "<path>" "<alternativePath>"` for each row selected.  It is possible to select every file in the bottom table, and create a hard link for all of them.  This would result in a scenario where the data are stored in just one location on the disk but file handles exist in many locations.
 
