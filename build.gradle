@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
 	compile "org.codehaus.groovy:groovy-all:2.1.5"
+	compile "com.sun.mail:javax.mail:1.5.3"
 }
 
 sourceSets{

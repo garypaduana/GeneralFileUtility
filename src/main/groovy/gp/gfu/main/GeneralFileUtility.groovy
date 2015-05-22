@@ -402,6 +402,16 @@ class Main{
 							}
 						}						
 					}
+					splitPane(title:"File Event Emailer", constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:140){
+						scrollPane(constraints:"top"){
+							gridBagLayout()
+						}
+						panel(constraints:"bottom"){
+							borderLayout()
+							
+						}
+					}
+					
                 }
                 panel(constraints:BorderLayout.SOUTH){
                     borderLayout()
