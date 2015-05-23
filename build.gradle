@@ -26,7 +26,7 @@ task uberjar(type: Jar, dependsOn:[':compileJava', ':compileGroovy']) {
     from configurations.runtime.asFileTree.files.collect { zipTree(it) }
 	from files(sourceSets.main.resources)
 
-    manifest {
-        attributes 'Main-Class': mainClassName
-    }
+    manifest{
+		attributes 'Main-Class' : mainClassName
+	}
 }

@@ -33,6 +33,7 @@ import gp.gfu.presentation.FileInfoObserver
 import gp.gfu.presentation.MyTableModel
 import gp.gfu.presentation.RenameObserver
 import gp.gfu.util.Calculations
+import gp.gfu.util.SendMailTLS;
 import groovy.swing.SwingBuilder
 
 import java.awt.BorderLayout
@@ -46,6 +47,11 @@ import java.awt.event.AdjustmentEvent
 import java.awt.event.AdjustmentListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.attribute.FileTime
 import java.util.Collection
 import java.util.Map
 
@@ -403,12 +409,35 @@ class Main{
 						}						
 					}
 					splitPane(title:"File Event Emailer", constraints: BorderLayout.CENTER, orientation:JSplitPane.VERTICAL_SPLIT, dividerLocation:140){
-						scrollPane(constraints:"top"){
-							gridBagLayout()
-						}
-						panel(constraints:"bottom"){
+						panel(constraints:"top"){
 							borderLayout()
-							
+							panel(constraints:BorderLayout.CENTER){
+								gridBagLayout()
+								label(text:"Watch Directory:", constraints:gbc(gridx:0,gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								textField(id:'emailWatchDirectory', constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[200,20], preferredSize:[200,20])
+								label(text:"File Pattern:", constraints:gbc(gridx:0,gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								textField(id:'emailFilePattern', text:'.+', constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[200,20], preferredSize:[200,20])
+								label(text:"Email Account:", constraints:gbc(gridx:0,gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								textField(id:'emailAccount', constraints:gbc(gridx:1, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[200,20], preferredSize:[200,20])
+								label(text:"Password:", constraints:gbc(gridx:0,gridy:3, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								passwordField(id:'emailPassword', constraints:gbc(gridx:1, gridy:3, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[200,20], preferredSize:[200,20])
+								label(text:"Send To:", constraints:gbc(gridx:2,gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								textField(id:'emailTo', constraints:gbc(gridx:3, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[200,20], preferredSize:[200,20])
+								label(text:"Subject:", constraints:gbc(gridx:2,gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								textField(id:'emailSubject', text:'Attention!', constraints:gbc(gridx:3, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[200,20], preferredSize:[200,20])
+								label(text:"File Scan Interval:", constraints:gbc(gridx:2,gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								textField(id:'emailFileScanInterval', text:'10', constraints:gbc(gridx:3, gridy:2, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS), minimumSize:[200,20], preferredSize:[200,20])
+								label(id:'emailLastScanLabel', text: "Last Scanned:", constraints:gbc(gridx:2,gridy:3, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								label(id:'emailLastScan', text: "", constraints:gbc(gridx:3,gridy:3, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+								panel(constraints:gbc(gridx:0,gridy:4, gridwidth:4, fill:GridBagConstraints.NONE, insets:INSETS)){
+									flowLayout()
+									button(id:'emailStart', text:"Start", minimumSize:[100,20], preferredSize:[100,20], actionPerformed:{ startEmailMonitoring() })
+									button(id:'emailCancel', enabled: false, text:"Cancel", minimumSize:[100,20], preferredSize:[100,20], actionPerformed:{ cancelEmailMonitoring() })
+								}
+							}
+						}
+						scrollPane(constraints: "bottom"){
+							textArea(id:'emailLog', editable:false)
 						}
 					}
 					
@@ -546,6 +575,124 @@ class Main{
             frame.setVisible(true)
         }
     }
+	
+	Timer emailFileScanTimer
+	long emailMonitorBegan
+	
+	def startEmailMonitoring(){
+		emailFileScanTimer = new Timer()
+		emailMonitorBegan = System.currentTimeMillis()
+		
+		long duration
+		swingBuilder.edt{
+			swingBuilder.emailStart.setEnabled(false)
+			swingBuilder.emailCancel.setEnabled(true)
+			duration = Long.valueOf(swingBuilder.emailFileScanInterval.text)	
+		}
+		
+		emailFileScanTimer.scheduleAtFixedRate(
+			new TimerTask(){
+				@Override
+				public void run(){
+					emailScanFiles()
+				}
+			},
+			0L,  // start delay
+			1000L * duration)  // interval
+	}
+	
+	Set<File> emailWatchFileSet = new HashSet<File>()
+	
+	def emailScanFiles(){
+		String watchDir
+		String regex
+		String username
+		String password
+		String sendTo
+		String subject
+		
+		Set<File> newFiles = new HashSet<File>()
+		
+		swingBuilder.edt{
+			watchDir = swingBuilder.emailWatchDirectory.text	
+			regex = swingBuilder.emailFilePattern.text
+			username = swingBuilder.emailAccount.text
+			password = swingBuilder.emailPassword.text
+			sendTo = swingBuilder.emailTo.text
+			subject = swingBuilder.emailSubject.text
+			
+			doLater{
+				swingBuilder.emailLastScan.text = new Date().toString()	
+			}
+			doOutside{
+				long fileSizes = 0
+				
+				for(String dir : watchDir.split(",")){
+					File watchDirFile = new File(dir)
+					
+					watchDirFile.eachFileRecurse(){file ->
+						if(!(file.getName() ==~ regex)){
+							return
+						}
+						
+						if(!emailWatchFileSet.contains(file)){
+							
+							Path path = Paths.get(file.getAbsolutePath());
+							BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+							FileTime creationTime = attributes.creationTime();
+							boolean delayedUntilNextEmail = false
+							
+							if(file.lastModified() > emailMonitorBegan ||
+							   creationTime.toMillis() > emailMonitorBegan){
+							   
+							   if(fileSizes + file.length() < 25 * 1e6){
+								   fileSizes += file.length()
+								   newFiles.add(file)
+							   }
+							   else{
+								   delayedUntilNextEmail = true
+							   }
+							}
+							if(!delayedUntilNextEmail){
+								emailWatchFileSet.add(file)
+							}
+						}
+					}
+					
+					if(newFiles.size() > 0){
+						StringBuilder sb = new StringBuilder()
+						newFiles.each(){
+							sb.append('\t' + it + '\n')
+						}
+						
+						doLater{
+							swingBuilder.emailLog.append("Discovered new files: \n${sb.toString()}" + "\n")	
+						}
+						try{
+							SendMailTLS.sendEmail(username, password, sendTo, subject, "", newFiles)
+							doLater{
+								swingBuilder.emailLog.append("${new Date()} - email sent successfully with \n${sb.toString()}." + "\n")
+							}
+						}catch(Exception ex){
+							StringWriter sw = new StringWriter()
+							PrintWriter pw = new PrintWriter(sw)
+							ex.printStackTrace(pw)
+							swingBuilder.emailLog.append(sw.toString() + "\n")
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	def cancelEmailMonitoring(){
+		emailFileScanTimer.cancel()
+		swingBuilder.edt{
+			swingBuilder.emailStart.setEnabled(true)
+			swingBuilder.emailCancel.setEnabled(false)
+			duration = Long.valueOf(swingBuilder.emailFileScanInterval.text)
+		}
+	}
 	
 	def performBinaryDataOperation(String text){
 		swingBuilder.edt{						

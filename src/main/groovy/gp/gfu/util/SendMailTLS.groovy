@@ -5,6 +5,7 @@ import java.util.Properties
 import javax.activation.DataHandler
 import javax.activation.DataSource
 import javax.activation.FileDataSource
+import javax.mail.Address
 import javax.mail.Message
 import javax.mail.MessagingException
 import javax.mail.Multipart
@@ -18,8 +19,8 @@ import javax.mail.internet.MimeMultipart
 
 public class SendMailTLS {
 
-	public static void sendEmail(String username, String password, String toAddress,
-			String subject, String text, List<File> attachments) throws MessagingException {
+	public static void sendEmail(String username, String password, String toAddresses,
+			String subject, String text, Collection<File> attachments) throws MessagingException {
 
 		Properties props = new Properties()
 		props.put("mail.smtp.auth", "true")
@@ -36,7 +37,7 @@ public class SendMailTLS {
 
 		Message message = new MimeMessage(session)
 		message.setFrom(new InternetAddress(username))
-		message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress))
+		message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddresses))
 		message.setSubject(subject)
 
 		MimeBodyPart messageBodyPart = new MimeBodyPart()
@@ -50,7 +51,7 @@ public class SendMailTLS {
 			DataSource source = new FileDataSource(attachment)
 
 			messageBodyPart.setDataHandler(new DataHandler(source))
-			messageBodyPart.setFileName(attachment)
+			messageBodyPart.setFileName(attachment.getName())
 			multipart.addBodyPart(messageBodyPart)
 		}
 
