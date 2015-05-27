@@ -313,9 +313,8 @@ class Main{
 															dateFormatTextField.getText())												
 												}
 												else if(editorComboBox.getSelectedItem().equals("Insert")){
-													renameableCollection = new InsertRenameableCollection(renameDirTextField.getText(), regexMatchTextField.getText())
+													renameableCollection = new InsertRenameableCollection(renameDirTextField.getText(), regexMatchTextField.getText(), insertTextField.getText(), Integer.parseInt(insertPositionTextField.getText()))
 												}
-												
 												
 												if(renameableCollection != null){
 													try{
@@ -371,6 +370,13 @@ class Main{
 										gridBagLayout()
 										label(text:"Date Format:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
 										textField(id:'dateFormatTextField', text:"yyyyMMdd_HHmmss", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+									}
+									panel(constraints:"Insert"){
+										gridBagLayout()
+										label(text:"Value:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										textField(id:'insertTextField', text:"", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										label(text:"Position:", constraints:gbc(gridx:0, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										textField(id:'insertPositionTextField', text:"0", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:1, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
 									}
 								}
 							}

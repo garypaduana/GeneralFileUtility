@@ -20,12 +20,21 @@ package gp.gfu.domain
 
 public class InsertRenameableCollection extends AbstractRenameableCollection{
 		
-	public InsertRenameableCollection(String topDir, String regex){
+	private String value
+	private int position
+	
+	public InsertRenameableCollection(String topDir, String regex, String value, int position){
 		super(topDir, regex)
+		this.value = value
+		this.position = position
 	}
 	
 	String applyChange(String name, File file){
-		println name
-		return name
+		if(name.length() - 1 > position){
+		    return name.substring(0, position) + value + name.substring(position, name.length())
+		}
+		else{
+		    return name
+		}
 	}
 }
