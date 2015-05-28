@@ -6,8 +6,6 @@ Built with `Gradle 2.2.1`, `Groovy 2.3.6`
 ***Build***
 *  gradle uberjar
 
-Or download an [executable jar file](https://github.com/garypaduana/GeneralFileUtility/blob/master/binaries/GeneralFileUtility.jar?raw=true)
-
 ***Execution***
 *  java -jar "build/libs/GeneralFileUtility-master-1.0.jar"
 
