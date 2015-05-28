@@ -8,3 +8,4 @@ out/
 *.iml
 /bin/
 .DS_Store
+binaries/
