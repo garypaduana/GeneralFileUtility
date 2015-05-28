@@ -1,8 +1,6 @@
 General File Utility
 ===
 
-Built with `Gradle 2.2.1`, `Groovy 2.3.6`
-
 ***Build***
 *  gradle uberjar
 
