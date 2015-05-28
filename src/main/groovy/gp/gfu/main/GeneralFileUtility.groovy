@@ -74,7 +74,7 @@ import javax.swing.UIManager
 
 Main main = new Main()
 
-class Main{
+public class Main{
 
     private SwingBuilder swingBuilder = new SwingBuilder()
     private int fileTableLastSelectedIndex = -1
@@ -82,7 +82,7 @@ class Main{
 	public enum WORK_STATE {CONTINUE, CANCEL}
 	private String parity
 	private int lastParityTextAreaLength
-	
+
 	private FileInfoManager fileInfoManager
 	private MergeFileInfoManager mergeFileInfoManager
 	private Map<String, FileInfo> pathToFileInfoMap = new HashMap<String, FileInfo>()
@@ -310,7 +310,7 @@ class Main{
 												}
 												else if(editorComboBox.getSelectedItem().equals("Date-ify")){
 													renameableCollection = new DateifyRenameableCollection(renameDirTextField.getText(), regexMatchTextField.getText(),
-															dateFormatTextField.getText())												
+															dateFormatTextField.getText(), addSequenceIdCheckBox.isSelected())
 												}
 												else if(editorComboBox.getSelectedItem().equals("Insert")){
 													renameableCollection = new InsertRenameableCollection(renameDirTextField.getText(), regexMatchTextField.getText(), insertTextField.getText(), Integer.parseInt(insertPositionTextField.getText()))
@@ -370,6 +370,7 @@ class Main{
 										gridBagLayout()
 										label(text:"Date Format:", constraints:gbc(gridx:0, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
 										textField(id:'dateFormatTextField', text:"yyyyMMdd_HHmmss", minimumSize:[200,20], preferredSize:[200,20], constraints:gbc(gridx:1, gridy:0, gridwidth:1, fill:GridBagConstraints.NONE, insets:INSETS))
+										checkBox(id:'addSequenceIdCheckBox', selected:false, text:'Use numerical sequence from source if available?', constraints:gbc(gridx:0, gridy:1, gridwidth:2, fill:GridBagConstraints.NONE, insets:INSETS))
 									}
 									panel(constraints:"Insert"){
 										gridBagLayout()

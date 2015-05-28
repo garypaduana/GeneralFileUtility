@@ -6,3 +6,5 @@ out/
 .idea/
 .project
 *.iml
+/bin/
+.DS_Store
