@@ -1001,12 +1001,12 @@ public class Main{
             swingBuilder.cancelMergeButton.setEnabled(true)
 
             doOutside{
-        fileList.addAll(Calculations.getFileList(swingBuilder.sourceDirTextField.getText()))
+                fileList.addAll(Calculations.getFileList(swingBuilder.sourceDirTextField.getText()))
                 swingBuilder.cancelScanButton.setEnabled(true)
                 mergeFileInfoManager = new MergeFileInfoManager(fileList, swingBuilder.destDirTextField.getText(),
-                swingBuilder.sourceDirTextField.getText(), copyOnly)
+                    swingBuilder.sourceDirTextField.getText(), copyOnly, fileInfoManager)
                 mergeFileInfoManager.setMergeCanceled(false)
-
+                
                 FileInfoObserver fileInfoObserver = new FileInfoObserver(mergeFileInfoManager, swingBuilder)
                 mergeFileInfoManager.addObserver(fileInfoObserver)
                 mergeFileInfoManager.processFiles(pathToFileInfoMap)

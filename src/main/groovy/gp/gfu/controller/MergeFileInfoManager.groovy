@@ -32,12 +32,14 @@ public class MergeFileInfoManager extends FileInfoManager{
     private java.util.List<java.util.List<Object>> mergedFileInfoDataList = new ArrayList<java.util.List<Object>>()
     private java.util.List<java.util.List<Object>> notMergedFileInfoDataList = new ArrayList<java.util.List<Object>>()
     private boolean mergeCanceled = false
+    def alternateInfoManager
 
-    public MergeFileInfoManager(java.util.List<String> fileList, String destinationPath, String sourcePath, boolean copyOnly){
+    public MergeFileInfoManager(java.util.List<String> fileList, String destinationPath, String sourcePath, boolean copyOnly, def alternateInfoManager){
         super(fileList)
         this.destinationPath = destinationPath
         this.sourcePath = sourcePath
         this.copyOnly = copyOnly
+        this.alternateInfoManager = alternateInfoManager
     }
 
     public java.util.List<java.util.List<Object>> getInterimMergedData(){
@@ -60,7 +62,7 @@ public class MergeFileInfoManager extends FileInfoManager{
 
             FileInfo fileInfo = buildFileInfo(entry, i)
             // true means the file already exists
-            if(addFileInfo(fileInfo, entry, pathToFileInfoMap)){
+            if(addFileInfo(fileInfo, entry, pathToFileInfoMap) || alternateInfoManager.addFileInfo(fileInfo, entry, pathToFileInfoMap)){
                 interimNotMergedData.add(entry)
             }
             else{

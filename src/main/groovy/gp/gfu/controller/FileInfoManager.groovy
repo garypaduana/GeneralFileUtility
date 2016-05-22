@@ -72,12 +72,11 @@ public class FileInfoManager extends Observable{
                  "(${Calculations.customFormat('###,###,###,###,###', size)} bytes)"
         notifyObservers()
         FileInfo fileInfo = new FileInfo(fileList.get(i), new File(fileList.get(i)).getName(), size)
-        ++filesProcessedCount
+        filesProcessedCount++
         return fileInfo
     }
 
-    protected boolean addFileInfo(FileInfo fileInfo, java.util.List<String> entry,
-        Map<String, FileInfo> pathToFileInfoMap){
+    protected boolean addFileInfo(FileInfo fileInfo, java.util.List<String> entry, Map<String, FileInfo> pathToFileInfoMap){
 
         pathToFileInfoMap.put(fileInfo.getPath(), fileInfo)
 
