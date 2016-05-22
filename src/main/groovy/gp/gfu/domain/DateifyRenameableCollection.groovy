@@ -22,32 +22,32 @@ import java.text.SimpleDateFormat
 
 public class DateifyRenameableCollection extends AbstractRenameableCollection{
 
-	private String dateFormat
-	private boolean addSequence
-	private Map<Long, Integer> msMap = new TreeMap<Long, Integer>()
-	
-	
-	public DateifyRenameableCollection(String topDir, String regex, String dateFormat, boolean addSequence){
-		super(topDir, regex)
-		this.dateFormat = dateFormat
-		this.addSequence = addSequence
-	}
-	
-	String applyChange(String name, File file){
-		long time = file.lastModified()
-		String dif = ""
+    private String dateFormat
+    private boolean addSequence
+    private Map<Long, Integer> msMap = new TreeMap<Long, Integer>()
 
-		if(addSequence){
-			def m = file.getName() =~ ".+?(\\d+).+"
-			if(m){
-				dif = m[0][1]
-			}
-		}
 
-		DateFormat df = new SimpleDateFormat(dateFormat);
-		if(dif.length() > 0){
-			dif = "." + dif
-		}
-		return df.format(new Date(time)) + dif + "." + name.substring(name.lastIndexOf(".") + 1, name.length())
-	}
+    public DateifyRenameableCollection(String topDir, String regex, String dateFormat, boolean addSequence){
+        super(topDir, regex)
+        this.dateFormat = dateFormat
+        this.addSequence = addSequence
+    }
+
+    String applyChange(String name, File file){
+        long time = file.lastModified()
+        String dif = ""
+
+        if(addSequence){
+            def m = file.getName() =~ ".+?(\\d+).+"
+            if(m){
+                dif = m[0][1]
+            }
+        }
+
+        DateFormat df = new SimpleDateFormat(dateFormat);
+        if(dif.length() > 0){
+            dif = "." + dif
+        }
+        return df.format(new Date(time)) + dif + "." + name.substring(name.lastIndexOf(".") + 1, name.length())
+    }
 }

@@ -22,32 +22,32 @@ import gp.gfu.domain.RenameableCollection;
 import javax.swing.table.AbstractTableModel
 
 public class MyTableModel extends BasicTableModel {
-	private RenameableCollection renameableCollection = null
-		
+    private RenameableCollection renameableCollection = null
+
     public MyTableModel(){
         super()
     }
-    
+
     public MyTableModel(Object[][] data, String[] columnNames, RenameableCollection renameableCollection){
         this.columnNames = columnNames
         this.data = data
-		this.renameableCollection = renameableCollection
+        this.renameableCollection = renameableCollection
     }
-	    
+
     public boolean isCellEditable(int row, int col) {
-		// col 1 is the check mark or x mark ImageIcon, do not edit!
-		if(col == 1){
-			return false
-		}
-		return true
+        // col 1 is the check mark or x mark ImageIcon, do not edit!
+        if(col == 1){
+            return false
+        }
+        return true
     }
 
     public void setValueAt(Object value, int row, int col) {
         data[row][col] = value
         fireTableCellUpdated(row, col)
-		
-		if(renameableCollection != null){
-			renameableCollection.setValueAt(value, row, col)
-		}
+
+        if(renameableCollection != null){
+            renameableCollection.setValueAt(value, row, col)
+        }
     }
 }

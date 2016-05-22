@@ -20,26 +20,26 @@ package gp.gfu.domain
 import javax.swing.ImageIcon
 
 public class Data{
-	
-	public static final ImageIcon X_MARK = new ImageIcon(Data.class.getResource("/resources/images/xmark.png"))
-	public static final ImageIcon CHECK_MARK = new ImageIcon(Data.class.getResource("/resources/images/checkmark.png"))
-	
-	public static Object[][] convertListToArray(java.util.List<java.util.List<Object>> myList){
-		Object[][] data = new Object[myList.size()][myList.get(0).size()]
-		for(int i = 0; i < myList.size(); i++){
-			for(int j = 0; j < myList.get(i).size(); j++){
-				data[i][j] = myList.get(i).get(j)
-			}
-		}
-		
-		return data
-	}
-	
-	public static Object[][] getEmptyData(){
-		Object[][] data = new Object[1][3]
+
+    public static final ImageIcon X_MARK = new ImageIcon(Data.class.getResource("/resources/images/xmark.png"))
+    public static final ImageIcon CHECK_MARK = new ImageIcon(Data.class.getResource("/resources/images/checkmark.png"))
+
+    public static Object[][] convertListToArray(java.util.List<java.util.List<Object>> myList){
+        Object[][] data = new Object[myList.size()][myList.get(0).size()]
+        for(int i = 0; i < myList.size(); i++){
+            for(int j = 0; j < myList.get(i).size(); j++){
+                data[i][j] = myList.get(i).get(j)
+            }
+        }
+
+        return data
+    }
+
+    public static Object[][] getEmptyData(){
+        Object[][] data = new Object[1][3]
         data[0][0] = ""
         data[0][1] = ""
         data[0][2] = ""
-		return data
-	}
+        return data
+    }
 }

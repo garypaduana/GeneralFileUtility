@@ -24,22 +24,22 @@ import javax.swing.table.AbstractTableModel
 public class BasicTableModel extends AbstractTableModel {
     protected String[] columnNames = (String[])[]
     protected Object[][] data = (Object[][])[][]
-		
+
     public BasicTableModel(){
         super()
     }
-	
-	public BasicTableModel(String[] columnNames){
-		super()
-		this.columnNames = columnNames
-	}
-	
-	public BasicTableModel(Object[][] data, String[] columnNames){
-		super()
+
+    public BasicTableModel(String[] columnNames){
+        super()
+        this.columnNames = columnNames
+    }
+
+    public BasicTableModel(Object[][] data, String[] columnNames){
+        super()
         this.columnNames = columnNames
         this.data = data
     }
-    
+
     public int getColumnCount() {
         return columnNames.length
     }
@@ -56,30 +56,30 @@ public class BasicTableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int row, int col) {
-		if(data.size() > 0)
+        if(data.size() > 0)
             return data[row][col]
         else
             return null
     }
 
     public Class<?> getColumnClass(int c){
-		if(getValueAt(0,c) != null)
-			return getValueAt(0, c).getClass()
+        if(getValueAt(0,c) != null)
+            return getValueAt(0, c).getClass()
         else
             return Object
     }
-    
+
     public boolean isCellEditable(int row, int col) {
-		return false
+        return false
     }
-	
-	public void setData(Object[][] data){
-		this.data = data
-		fireTableStructureChanged()
-		fireTableDataChanged()
-	}
-		
-	public void setColumnNames(String[] columnNames){
-		this.columnNames = columnNames
-	}
+
+    public void setData(Object[][] data){
+        this.data = data
+        fireTableStructureChanged()
+        fireTableDataChanged()
+    }
+
+    public void setColumnNames(String[] columnNames){
+        this.columnNames = columnNames
+    }
 }

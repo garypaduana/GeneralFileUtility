@@ -18,11 +18,11 @@
 package gp.gfu.domain
 
 public interface RenameableCollection{
-	Object[][] getData()
-	String[] getColumnNames()
-	void generatePreview()
-	void executeOperation()
-	int getPercentComplete()
-	String getStatus()
-	void setValueAt(Object value, int row, int col)
+    Object[][] getData()
+    String[] getColumnNames()
+    void generatePreview()
+    void executeOperation()
+    int getPercentComplete()
+    String getStatus()
+    void setValueAt(Object value, int row, int col)
  }

@@ -25,28 +25,28 @@ import java.awt.event.MouseEvent
 import javax.swing.JTable
 
 public class ToolTipJTable extends JTable{
-	
-	private FileInfoManager fileInfoManager
-	
-	public ToolTipJTable(FileInfoManager fileInfoManager){
-		super()
-		this.fileInfoManager = fileInfoManager
-	}
-	
-	//Implement table cell tool tips.
-	@Override
-	public String getToolTipText(MouseEvent e) {
-		java.awt.Point p = e.getPoint();
-		int rowIndex = rowAtPoint(p);
-		int colIndex = columnAtPoint(p);
-		int realColumnIndex = convertColumnIndexToModel(colIndex);
 
-		String hash = (String) getValueAt(rowIndex, 2)
+    private FileInfoManager fileInfoManager
 
-		if(fileInfoManager.getUniqueDigestMap().containsKey(hash)){
-			return fileInfoManager.getUniqueDigestMap().get(hash).getPath()
-		}
-		// Returning null prevents a tool tip from appearing if nothing is found		
-		return null
-	}
+    public ToolTipJTable(FileInfoManager fileInfoManager){
+        super()
+        this.fileInfoManager = fileInfoManager
+    }
+
+    //Implement table cell tool tips.
+    @Override
+    public String getToolTipText(MouseEvent e) {
+        java.awt.Point p = e.getPoint();
+        int rowIndex = rowAtPoint(p);
+        int colIndex = columnAtPoint(p);
+        int realColumnIndex = convertColumnIndexToModel(colIndex);
+
+        String hash = (String) getValueAt(rowIndex, 2)
+
+        if(fileInfoManager.getUniqueDigestMap().containsKey(hash)){
+            return fileInfoManager.getUniqueDigestMap().get(hash).getPath()
+        }
+        // Returning null prevents a tool tip from appearing if nothing is found
+        return null
+    }
 }

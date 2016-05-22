@@ -20,17 +20,17 @@ package gp.gfu.presentation
 import groovy.swing.SwingBuilder
 
 public class RenameObserver implements Observer{
-	
-	private SwingBuilder swingBuilder
-	
-	public RenameObserver(SwingBuilder swingBuilder){
-		this.swingBuilder = swingBuilder
-	}
-	
-	public void update(Observable obs, Object obj){
-		swingBuilder.edt{
-			swingBuilder.statusLabel.text = obs.getStatus()
-			swingBuilder.processProgressBar.value = obs.getPercentComplete()
-		}
-	} 
+
+    private SwingBuilder swingBuilder
+
+    public RenameObserver(SwingBuilder swingBuilder){
+        this.swingBuilder = swingBuilder
+    }
+
+    public void update(Observable obs, Object obj){
+        swingBuilder.edt{
+            swingBuilder.statusLabel.text = obs.getStatus()
+            swingBuilder.processProgressBar.value = obs.getPercentComplete()
+        }
+    }
  }

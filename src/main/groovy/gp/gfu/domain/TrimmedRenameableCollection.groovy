@@ -19,54 +19,54 @@ package gp.gfu.domain
 
 
 public class TrimmedRenameableCollection extends AbstractRenameableCollection{
-	
-	public enum TrimEnd {LEFT, RIGHT;}
-	
-	private TrimEnd trimEnd = TrimEnd.LEFT
-	private int trimLength = 0
-		
-	public TrimmedRenameableCollection(String topDir, TrimEnd trimEnd, int trimLength, String regex){
-		super(topDir, regex)
-		this.trimEnd = trimEnd
-		this.trimLength = trimLength
-	}
-	
-	String applyChange(String name, File file){
-		StringBuilder modifiedName = new StringBuilder()
-		
-		int begin, end = 0
-		int extPos = name.lastIndexOf(".")
-		
-		// File extension IS the name, nothing to rename
-		if(extPos == 0){return name}
-		
-		// File does not contain extension
-		if(extPos == -1){
-			extPos = name.length()
-		}
-		
-		if(trimEnd == TrimEnd.LEFT){
-			if(extPos > trimLength){
-				begin = trimLength
-			}
-			else{
-				begin = extPos - 1
-			}
-			end = name.length()
-			modifiedName.append(name.substring(begin, end))
-		}
-		else if(trimEnd == TrimEnd.RIGHT){
-			begin = 0
-			
-			if(extPos > trimLength){
-				end = extPos - trimLength
-			}
-			else{
-				end = begin + 1
-			}
-			modifiedName.append(name.substring(begin, end))
-			modifiedName.append(name.substring(extPos, name.length()))
-		}
-		return modifiedName.toString()
-	}		
+
+    public enum TrimEnd {LEFT, RIGHT;}
+
+    private TrimEnd trimEnd = TrimEnd.LEFT
+    private int trimLength = 0
+
+    public TrimmedRenameableCollection(String topDir, TrimEnd trimEnd, int trimLength, String regex){
+        super(topDir, regex)
+        this.trimEnd = trimEnd
+        this.trimLength = trimLength
+    }
+
+    String applyChange(String name, File file){
+        StringBuilder modifiedName = new StringBuilder()
+
+        int begin, end = 0
+        int extPos = name.lastIndexOf(".")
+
+        // File extension IS the name, nothing to rename
+        if(extPos == 0){return name}
+
+        // File does not contain extension
+        if(extPos == -1){
+            extPos = name.length()
+        }
+
+        if(trimEnd == TrimEnd.LEFT){
+            if(extPos > trimLength){
+                begin = trimLength
+            }
+            else{
+                begin = extPos - 1
+            }
+            end = name.length()
+            modifiedName.append(name.substring(begin, end))
+        }
+        else if(trimEnd == TrimEnd.RIGHT){
+            begin = 0
+
+            if(extPos > trimLength){
+                end = extPos - trimLength
+            }
+            else{
+                end = begin + 1
+            }
+            modifiedName.append(name.substring(begin, end))
+            modifiedName.append(name.substring(extPos, name.length()))
+        }
+        return modifiedName.toString()
+    }
  }

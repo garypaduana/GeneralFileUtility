@@ -18,17 +18,17 @@
 package gp.gfu.domain
 
 public class ReplaceableRenameableCollection extends AbstractRenameableCollection{
-	
-	private String replace = ""
-	private String with = ""
-	
-	public ReplaceableRenameableCollection(String topDir, String regex, String replace, String with){
-		super(topDir, regex)
-		this.replace = replace
-		this.with = with
-	}
-	
-	String applyChange(String name, File file){
-		return name.replace(replace, with)
-	}
+
+    private String replace = ""
+    private String with = ""
+
+    public ReplaceableRenameableCollection(String topDir, String regex, String replace, String with){
+        super(topDir, regex)
+        this.replace = replace
+        this.with = with
+    }
+
+    String applyChange(String name, File file){
+        return name.replace(replace, with)
+    }
  }
